@@ -1,83 +1,78 @@
 package com.netease.cloud.lowcode.naslstorage.service.impl;
 
+import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
-import javafx.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 实现自定义path 到mongodb 支持的jsonPath 转换
- * Pair 中的key 是分段的path路径，value 是过滤条件
  */
 @Service
-public class MdbPathConverter implements PathConverter<List<Pair<String, String>>> {
+public class MdbPathConverter implements PathConverter<List<JsonPathSchema>> {
+    private static final String PATH_SPLITTER = "\\.";
+    private static final Pattern SPLIT_PATH_PATTERN = Pattern.compile("(.+)\\[(\\d+|.+=.+)\\]");
+    private static final String PARAM_SPLITTER = "=";
+
     @Override
-    public List<Pair<String, String>> convert(String jsonPath) {
-        List<Pair<String, String>> ret = new ArrayList<>();
-        List<String> splitPaths = Arrays.asList(jsonPath.split("\\."));
-        String prePath = "";
+    public List<JsonPathSchema> convert(String jsonPath) {
+        List<JsonPathSchema> ret = new ArrayList<>();
+        List<String> splitPaths = Arrays.asList(jsonPath.split(PATH_SPLITTER));
         for (String splitPath : splitPaths) {
-            List<String> x = Arrays.asList(splitPath.split("\\["));
-            String key = x.get(0);
-            String value = null;
-            if (StringUtils.hasLength(prePath)) {
-                prePath = prePath + "." + key;
+            Matcher matcher = SPLIT_PATH_PATTERN.matcher(splitPath);
+            JsonPathSchema pathSchema = new JsonPathSchema();
+            if (!matcher.matches()) {
+                pathSchema.setPath(splitPath);
             } else {
-                if (!key.equalsIgnoreCase("apps")) {
-                    prePath = prePath + key;
-                }
-            }
-            String path = prePath;
-            if (x.size() > 1) {
-                String y = x.get(1);
-                y = y.replace("]", "").replace("\"", "");
-                List<String> values = Arrays.asList(y.split("="));
-                if (StringUtils.hasLength(prePath)) {
-                    path = prePath + "." + values.get(0);
+                pathSchema.setPath(matcher.group(1));
+                List<String> param = Arrays.asList(matcher.group(2).split(PARAM_SPLITTER));
+                if (param.size() > 1) {
+                    pathSchema.setKey(param.get(0));
+                    pathSchema.setValue(param.get(1));
                 } else {
-                    path = values.get(0);
-                }
-                if (values.size()>1) {
-                    value = values.get(1);
+                    pathSchema.setValue(param.get(0));
                 }
             }
-            Pair<String, String> p = new Pair<>(path, value);
-            ret.add(p);
+
+            ret.add(pathSchema);
         }
         return ret;
     }
 
     @Override
-    public String getPreviousPath(String path) {
-        int index = path.lastIndexOf(".");
-        if (index < 0){
-            return null;
+    public String reverseConvert(List<JsonPathSchema> jsonPathSchemas) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < jsonPathSchemas.size(); i++){
+            JsonPathSchema v = jsonPathSchemas.get(i);
+            builder.append(v.getPath());
+            if (StringUtils.hasLength(v.getKey()) && StringUtils.hasLength(v.getValue())) {
+                builder.append("[");
+                builder.append(v.getKey());
+                builder.append("=");
+                builder.append(v.getValue());
+                builder.append("]");
+            } else if (!StringUtils.hasLength(v.getKey()) && StringUtils.hasLength(v.getValue())) {
+                builder.append("[");
+                builder.append(v.getValue());
+                builder.append("]");
+            }
+            if (i != jsonPathSchemas.size() -1) {
+                builder.append(".");
+            }
         }
-        return path.substring(0, index);
+        return builder.toString();
     }
 
-    @Override
-    public String concatPath(String path1, String path2) {
-        if (StringUtils.hasLength(path1) && StringUtils.hasLength(path2)) {
-            return path1 + "." + path2;
-        } else if (StringUtils.hasLength(path1) && !StringUtils.hasLength(path2)) {
-            return path1;
-        } else if (!StringUtils.hasLength(path1) && StringUtils.hasLength(path2)) {
-            return path2;
-        } else {
-            return "";
-        }
-    }
 
     public static void main(String[] args) {
         MdbPathConverter converter = new MdbPathConverter();
         String test = "apps[id=\"ab878b5e\"]";
         System.out.println(converter.convert(test));
-
-        System.out.println(converter.getPreviousPath("apps"));
     }
 }

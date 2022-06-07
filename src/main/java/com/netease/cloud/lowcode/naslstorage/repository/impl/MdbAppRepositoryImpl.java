@@ -1,12 +1,14 @@
 package com.netease.cloud.lowcode.naslstorage.repository.impl;
 
+import com.netease.cloud.lowcode.naslstorage.context.AppIdContext;
+import com.netease.cloud.lowcode.naslstorage.context.RepositoryOperationContext;
 import com.netease.cloud.lowcode.naslstorage.repository.AppRepository;
+import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
-import javafx.util.Pair;
 import lombok.SneakyThrows;
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Field;
 import org.springframework.data.mongodb.core.query.Query;
@@ -21,136 +23,90 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-@Service
+@Service("mdbAppRepositoryImpl")
 public class MdbAppRepositoryImpl implements AppRepository {
-    private static final String COLLECTION_NAME = "app";
-    private static final String OBJECT_ID = "_id";
 
     @Resource
     private MongoTemplate mongoTemplate;
     @Resource
-    private PathConverter<List<Pair<String, String>>> pathConverter;
+    private PathConverter<List<JsonPathSchema>> pathConverter;
 
     @SneakyThrows
     @Override
-    public Map get(String jsonPath, List<String> excludes) {
-        List<Pair<String, String>> paths = pathConverter.convert(jsonPath);
-        Query query = new Query();
-        Criteria criteria = null;
-        // 文档过滤
-        Field field = query.fields().exclude("_id");
-        Pair<String, String> includePair = null;
-        for (Pair<String, String> path : paths) {
-            if (path.getValue() == null) {
-                break;
-            }
-            if (criteria == null) {
-                criteria = Criteria.where(path.getKey()).is(path.getValue());
+    public Object get(RepositoryOperationContext context, String jsonPath, List<String> excludes) {
+        List<JsonPathSchema> paths = pathConverter.convert(jsonPath);
+        List<AggregationOperation> aggregationOperations = new ArrayList<>();
+        /**
+         * 文档过滤
+         */
+        if (!CollectionUtils.isEmpty(context.getObjectIds())) {
+            aggregationOperations.add(Aggregation.match(Criteria.where(OBJECT_ID).in(context.getObjectIds())));
+        }
+        String lastPathWithoutParam = null;
+        for (int i = 0; i < paths.size(); i++) {
+            JsonPathSchema path = paths.get(i);
+            if (!StringUtils.hasLength(path.getKey()) && StringUtils.hasLength(path.getValue())) {
+                // key 为空，value 不为空是数组下标查询
+                aggregationOperations.add(Aggregation.project().andExpression(path.getPath()).slice(1, Integer.valueOf(path.getValue())));
+                aggregationOperations.add(Aggregation.unwind(path.getPath()));
+                aggregationOperations.add(Aggregation.replaceRoot(path.getPath()));
+            } else if (StringUtils.hasLength(path.getKey()) && StringUtils.hasLength(path.getValue())) {
+                // key 和value 都不为空
+                aggregationOperations.add(Aggregation.match(Criteria.where(path.getKey()).is(path.getValue())));
             } else {
-                criteria.and(path.getKey()).is(path.getValue());
+                if (APP.equalsIgnoreCase(path.getPath())) {
+                    // 应用过滤信息不在path 中，是通过header 传入的
+                    aggregationOperations.add(Aggregation.match(Criteria.where(APP_ID).is(context.getAppId())));
+                }
             }
-            includePair = path;
+            if (i < paths.size() - 1) {
+                // 不是最后一个元素
+                JsonPathSchema nextPath = paths.get(i + 1);
+                if (!(!StringUtils.hasLength(nextPath.getKey()) && StringUtils.hasLength(nextPath.getValue()))) {
+                    // 非最后一段没有搜索条件的；非下一段是数组下标搜索
+                    UnwindOperation unwindOperation = Aggregation.unwind(nextPath.getPath());
+                    aggregationOperations.add(unwindOperation);
+                    // mongo默认返回整个文档结构，我们需要返回查询的子node, 数组也不能作为newRoot
+                    aggregationOperations.add(Aggregation.replaceRoot(nextPath.getPath()));
+                }
+            } else {
+                // key、value 都为null，这种情况是路径上没有搜索条件, 通常是JsonObject 里选取字段。只有在最后一段path 中可能为数组，中间不带搜索条件的不能是数组。
+                // mongodb 限制：非数组不能replaceRoot
+                if (!StringUtils.hasLength(path.getKey()) && !StringUtils.hasLength(path.getValue())) {
+                    lastPathWithoutParam = path.getPath();
+                }
+            }
         }
         /**
          * 字段投影
-         * 默认只返回搜索路径上相关的node，路径上所有的pair 都取会Path collision，所以取最长的那个pair 即可
          */
-        if (includePair != null) {
-            String previewPath = pathConverter.getPreviousPath(includePair.getKey());
-            // Include Embedded Fields in Array using slice
-            // field.slice(previewPath, -1);
-            // 排除掉除previewPath 外所有jsonNode 的返回
-            /*if (StringUtils.hasLength(previewPath)) {
-                field.include(previewPath);
-            }*/
-        }
-        if (criteria != null) {
-            query.addCriteria(criteria);
-        }
-        if (!CollectionUtils.isEmpty(excludes)) {
+        if (!StringUtils.hasLength(lastPathWithoutParam) && !CollectionUtils.isEmpty(excludes)) {
+            ProjectionOperation projectionOperation = new ProjectionOperation();
             for (String exclude : excludes) {
-                field.exclude(exclude);
+                projectionOperation = projectionOperation.andExclude(exclude);
             }
+            aggregationOperations.add(projectionOperation);
         }
-        Map result = mongoTemplate.findOne(query, Map.class, COLLECTION_NAME);
-        if (ObjectUtils.isEmpty(result)) {
-            return result;
+
+        Aggregation aggregation = Aggregation.newAggregation(aggregationOperations).withOptions(AggregationOptions.builder().allowDiskUse(true).build());
+
+        AggregationResults<Map> aggregateResult = mongoTemplate.aggregate(aggregation, COLLECTION_NAME, Map.class);
+        Map mongoResult = aggregateResult.getMappedResults().get(0);
+        if (ObjectUtils.isEmpty(mongoResult)) {
+            return mongoResult;
         }
-        // mongo默认返回整个文档结构，要返回子node，需要自己从mongo返回的文档中取
-        result = getSubDoc(result, paths);
-        if (!StringUtils.hasLength(includePair.getKey()) && (CollectionUtils.isEmpty(excludes) || !excludes.contains("views"))) {
-            result.put("views", queryView((List<Map>) result.get("views")));
-        } else {
-            result.put("views", queryView((List<Map>) result.get("views")));
+
+        Object result = mongoResult;
+
+        /**
+         * 如果path最后一段没有参数，需要反射取字段，因为不能用replaceRoot
+         */
+        if (StringUtils.hasLength(lastPathWithoutParam)) {
+            // 返回的可能是个数组或者object
+            result = getProperty(mongoResult, lastPathWithoutParam, excludes);
         }
+
         return result;
-    }
-
-    private Map getSubDoc(Map doc, List<Pair<String, String>> pairs) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        if (CollectionUtils.isEmpty(pairs)) {
-            return doc;
-        }
-        Pair<String, String> pair = pairs.get(pairs.size()-1);
-        String path = pathConverter.getPreviousPath(pair.getKey());
-        if (!StringUtils.hasLength(path)) {
-            return doc;
-        }
-        Map ret = doc;
-        List<String> splitPaths = Arrays.asList(path.split("\\."));
-        int i = 1;
-        for (String splitPath : splitPaths) {
-            Method method = ret.getClass().getMethod("get", Object.class);
-            Object x = method.invoke(ret, splitPath);
-            if (x instanceof ArrayList) {
-                Object v = pairs.get(i).getValue();
-                for (Map item : (ArrayList<Map>)x) {
-                    if (Objects.equals(v, item.get("name"))) {
-                        ret = item;
-                    }
-                }
-            } else {
-                ret = (Map)x;
-            }
-            i+=1;
-        }
-        return ret;
-    }
-
-    private List<Map> queryView(List<Map> c) {
-        if (CollectionUtils.isEmpty(c)) {
-            return new ArrayList<>();
-        }
-        List<ObjectId> objectIds = new ArrayList<>();
-        Map<ObjectId, List<Map>> childrenMap = new HashMap<>();
-        for (Map view : c) {
-            List<Map> children = (List<Map>) view.get("children");
-            List<Map> cret = new ArrayList<>();
-            if (!CollectionUtils.isEmpty(children)) {
-                cret = queryView(children);
-            }
-            ObjectId objectId = (ObjectId) view.get("refId");
-            childrenMap.put(objectId, cret);
-            objectIds.add(objectId);
-        }
-        Query query = Query.query(Criteria.where("_id").in(objectIds));
-        List<Map> ret = mongoTemplate.find(query, Map.class, COLLECTION_NAME);
-        ret.stream().forEach(v-> {
-            v.put("children", childrenMap.get(v.get("_id")));
-        });
-        return ret;
-    }
-
-    private Map queryView(Map c) {
-        List<Map> children = (List<Map>) c.get("children");
-        List<Map> cret = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(children)) {
-            cret = queryView(children);
-        }
-        ObjectId objectId = (ObjectId) c.get("refId");
-        Query query = Query.query(Criteria.where("_id").is(objectId));
-        Map ret = mongoTemplate.findOne(query, Map.class, COLLECTION_NAME);
-        ret.put("children", cret);
-        return ret;
     }
 
     @Override
@@ -163,13 +119,12 @@ public class MdbAppRepositoryImpl implements AppRepository {
 
     @Override
     public void update(String jsonPath, Map o) {
-        List<Pair<String, String>> paths = pathConverter.convert(jsonPath);
+        List<JsonPathSchema> paths = pathConverter.convert(jsonPath);
         Query query = new Query();
         Criteria criteria = null;
         // 文档过滤
         Field field = query.fields().exclude("_id");
-        Pair<String, String> includePair = null;
-        for (Pair<String, String> path : paths) {
+        for (JsonPathSchema path : paths) {
             if (path.getValue() == null) {
                 break;
             }
@@ -178,7 +133,6 @@ public class MdbAppRepositoryImpl implements AppRepository {
             } else {
                 criteria.and(path.getKey()).is(path.getValue());
             }
-            includePair = path;
         }
         query.addCriteria(criteria);
         Update update = new Update();
@@ -186,32 +140,29 @@ public class MdbAppRepositoryImpl implements AppRepository {
         mongoTemplate.updateFirst(query, update, COLLECTION_NAME);
     }
 
-    // 取文档内某个object
-        /*Query query = new Query(Criteria.where("playground.id").is("34b3d4462ff244e8975736d9bc5fa64f"));
-        query.fields().exclude("playground.logicId");
-        Map result = mongoTemplate.findOne(query, Map.class, COLLECTION_NAME);
-        System.out.println(result.get("playground"));
-
-        // 取文档内数组元素
-        Query query1 = new Query(Criteria.where("body.id").is("b9fca871db9041568565f8fce3fb6d66"));
-        query1.fields().elemMatch("body", Criteria.where("id").is("b9fca871db9041568565f8fce3fb6d66")).exclude("_id");
-        Map result1 = mongoTemplate.findOne(query1, Map.class, COLLECTION_NAME);
-        if (result1.get("body") instanceof ArrayList) {
-            System.out.println(((ArrayList) result1.get("body")).get(0));
-        }*/
-
-    // 单个文档大于16M， 官方推荐用GridFS
-    // mongoTemplate.save(body, COLLECTION_NAME);
-
-    // 关联表，数组字段join，unwind 后，再group 合并困难
-        /*Criteria criteria = Criteria.where("concept").is("App").and("name").is("course");
-        Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.match(criteria),
-                Aggregation.lookup("app", "_id", "preId", "view"),
-                Aggregation.unwind("view", true),
-                Aggregation.lookup("app", "view._id", "preId", "view.children")*//*,
-                Aggregation.group("_id").getFields().and(Aggregation.group("_id").push("view").as("views").getFields().getField("xx"))*//*
-        ).withOptions(AggregationOptions.builder().allowDiskUse(true).build());
-        AggregationResults<Map> result = mongoTemplate.aggregate(aggregation, COLLECTION_NAME, Map.class);
-        System.out.println(result.getMappedResults());*/
+    private Object getProperty(Map doc, String lastPathWithoutParam, List<String> excludes) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        if (!StringUtils.hasLength(lastPathWithoutParam)) {
+            return doc;
+        }
+        Method method = doc.getClass().getMethod("get", Object.class);
+        Object ret = method.invoke(doc, lastPathWithoutParam);
+        if (!CollectionUtils.isEmpty(excludes)) {
+            for (String exclude : excludes) {
+                if (ret instanceof Collection) {
+                    Collection<Object> tmp = (Collection<Object>) ret;
+                    tmp.forEach(v->{
+                        if (v instanceof Map) {
+                            ((Map<?, ?>) v).remove(exclude);
+                        }
+                    });
+                    ret = tmp;
+                } else if (ret instanceof Map) {
+                    Map tmp = (Map) ret;
+                    tmp.remove(exclude);
+                    ret = tmp;
+                }
+            }
+        }
+        return ret;
+    }
 }

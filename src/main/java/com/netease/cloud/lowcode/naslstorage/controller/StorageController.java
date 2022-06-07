@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/storage")
@@ -30,7 +29,7 @@ public class StorageController {
     }
 
     @PostMapping("/batchQuery")
-    public List<Map> batchQuery(@RequestBody List<QueryDTO> queryDTOS) {
+    public List<Object> batchQuery(@RequestBody List<QueryDTO> queryDTOS) {
         if (CollectionUtils.isEmpty(queryDTOS)) {
             return new ArrayList<>();
         }

@@ -6,25 +6,18 @@ package com.netease.cloud.lowcode.naslstorage.service;
  */
 public interface PathConverter<T> {
     /**
-     * 自定义的jsonPath，转换成对应的存储系统可识别的路径
-     * 查询条件在每一段path 中，path 的最后一段可能有或没有查询条件
+     * 自定义的jsonPath，格式如app.views[name=w333].children[name=12222].name，转换成对应的存储系统可识别的路径
+     * 查询条件在每一段path 中，path 的数组类型node 可以通过[] 中查询条件过滤，非数组类型不能定义[]查询条件；app 的查询条件通过header 带入，也不能定义[]查询条件
+     * 数组还可以通过[0] 下标来过滤
      * @param jsonPath
      * @return
      */
     T convert(String jsonPath);
 
     /**
-     * 获取上一级path
-     * @param path
+     * 将mdb 的path 反向转为自定义jsonPath
+     * @param t
      * @return
      */
-    String getPreviousPath(String path);
-
-    /**
-     * 将path1和path2 拼装起来
-     * @param path1
-     * @param path2
-     * @return
-     */
-    String concatPath(String path1, String path2);
+    String reverseConvert(T t);
 }

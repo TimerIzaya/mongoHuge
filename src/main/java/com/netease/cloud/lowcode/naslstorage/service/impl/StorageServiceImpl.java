@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class StorageServiceImpl implements StorageService {
-    @Resource
+    @Resource(name = "splitMdbAppRepositoryImpl")
     private AppRepository appRepository;
 
     @Override
-    public List<Map> batchQuery(List<QueryDTO> queryDTOS) {
+    public List<Object> batchQuery(List<QueryDTO> queryDTOS) {
         if (CollectionUtils.isEmpty(queryDTOS)) {
             return new ArrayList<>();
         }
@@ -43,8 +43,8 @@ public class StorageServiceImpl implements StorageService {
         actionDTOS.stream().forEach(this::save);
     }
 
-    private Map get(QueryDTO queryDTO) {
-        return appRepository.get(queryDTO.getPath(), queryDTO.getExcludes());
+    private Object get(QueryDTO queryDTO) {
+        return appRepository.get(null, queryDTO.getPath(), queryDTO.getExcludes());
     }
 
     private List<Map> saveView(Object views) {

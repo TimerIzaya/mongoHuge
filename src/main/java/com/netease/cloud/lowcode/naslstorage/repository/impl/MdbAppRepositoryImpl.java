@@ -52,6 +52,11 @@ public class MdbAppRepositoryImpl implements AppRepository {
                 aggregationOperations.add(Aggregation.replaceRoot(path.getPath()));
             } else if (StringUtils.hasLength(path.getKey()) && StringUtils.hasLength(path.getValue())) {
                 // key 和value 都不为空
+                // 下一段非最后一段没有搜索条件的；非下一段是数组下标搜索
+                UnwindOperation unwindOperation = Aggregation.unwind(path.getPath());
+                aggregationOperations.add(unwindOperation);
+                // mongo默认返回整个文档结构，我们需要返回查询的子node, 数组也不能作为newRoot
+                aggregationOperations.add(Aggregation.replaceRoot(path.getPath()));
                 aggregationOperations.add(Aggregation.match(Criteria.where(path.getKey()).is(path.getValue())));
             } else {
                 if (APP.equalsIgnoreCase(path.getPath())) {
@@ -59,17 +64,7 @@ public class MdbAppRepositoryImpl implements AppRepository {
                     aggregationOperations.add(Aggregation.match(Criteria.where(APP_ID).is(context.getAppId())));
                 }
             }
-            if (i < paths.size() - 1) {
-                // 不是最后一个元素
-                JsonPathSchema nextPath = paths.get(i + 1);
-                if (!(!StringUtils.hasLength(nextPath.getKey()) && StringUtils.hasLength(nextPath.getValue()))) {
-                    // 非最后一段没有搜索条件的；非下一段是数组下标搜索
-                    UnwindOperation unwindOperation = Aggregation.unwind(nextPath.getPath());
-                    aggregationOperations.add(unwindOperation);
-                    // mongo默认返回整个文档结构，我们需要返回查询的子node, 数组也不能作为newRoot
-                    aggregationOperations.add(Aggregation.replaceRoot(nextPath.getPath()));
-                }
-            } else {
+            if (i == paths.size() - 1) {
                 // key、value 都为null，这种情况是路径上没有搜索条件, 通常是JsonObject 里选取字段。只有在最后一段path 中可能为数组，中间不带搜索条件的不能是数组。
                 // mongodb 限制：非数组不能replaceRoot
                 if (!StringUtils.hasLength(path.getKey()) && !StringUtils.hasLength(path.getValue())) {
@@ -91,6 +86,9 @@ public class MdbAppRepositoryImpl implements AppRepository {
         Aggregation aggregation = Aggregation.newAggregation(aggregationOperations).withOptions(AggregationOptions.builder().allowDiskUse(true).build());
 
         AggregationResults<Map> aggregateResult = mongoTemplate.aggregate(aggregation, COLLECTION_NAME, Map.class);
+        if (CollectionUtils.isEmpty(aggregateResult.getMappedResults())) {
+            return new HashMap<>();
+        }
         Map mongoResult = aggregateResult.getMappedResults().get(0);
         if (ObjectUtils.isEmpty(mongoResult)) {
             return mongoResult;

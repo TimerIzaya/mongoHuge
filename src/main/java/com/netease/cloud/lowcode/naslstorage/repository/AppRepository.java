@@ -15,7 +15,10 @@ public interface AppRepository {
     String NEED_SPLIT_DOC_CHILDREN = "children";
     String NEED_SPLIT_DOC_LOGICS = "logics";
     String REFERENCE_OBJECT_ID = "refId";
-    List<String> IN_APP_DOC = Arrays.asList(APP, NEED_SPLIT_DOC_VIEWS, NEED_SPLIT_DOC_CHILDREN, NEED_SPLIT_DOC_LOGICS);
+    /**
+     * 应用node下第一层需要拆分出去的字段
+     */
+    List<String> NEED_SPLIT_FIRST_PROPERTY_IN_APP_DOC = Arrays.asList(NEED_SPLIT_DOC_VIEWS, NEED_SPLIT_DOC_LOGICS);
     Object get(RepositoryOperationContext context, String jsonPath, List<String> excludes);
     Map insert(String jsonPath, Map o);
     void update(String jsonPath, Map o);

@@ -143,11 +143,14 @@ public class SplitMdbAppRepositoryImpl implements AppRepository {
     private LocationDocument locationDoc(List<JsonPathSchema> pathSchemas) {
         int lastIndex = -1;
         boolean needSplit = false;
+        boolean notSplitProperty = true;
+        boolean splitButInAppDoc = true;
         for (int i = 0; i < pathSchemas.size(); i++) {
             lastIndex = i;
             // views 下的logics 并不拆分文档
-            if (!IN_APP_DOC.contains(pathSchemas.get(i).getPath())
-                    || ((i >= 2) && !pathSchemas.get(i).getPath().equalsIgnoreCase(NEED_SPLIT_DOC_CHILDREN))) {
+            notSplitProperty = i == 1 ? !NEED_SPLIT_FIRST_PROPERTY_IN_APP_DOC.contains(pathSchemas.get(i).getPath()) : notSplitProperty;
+            splitButInAppDoc = i >= 2 ? pathSchemas.get(i).getPath().equalsIgnoreCase(NEED_SPLIT_DOC_CHILDREN) : splitButInAppDoc;
+            if (!notSplitProperty && !splitButInAppDoc) {
                 needSplit = true;
                 break;
             }

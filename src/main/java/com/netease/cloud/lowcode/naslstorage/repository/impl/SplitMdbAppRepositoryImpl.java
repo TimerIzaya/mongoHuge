@@ -13,9 +13,11 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * mdb 应用仓库包装类，提供文档拆分能力
@@ -38,12 +40,17 @@ public class SplitMdbAppRepositoryImpl implements AppRepository {
         // 路径上views.(children)+ 或logics在应用文档查询，其他的子path 需要定位到相应的关联文档操作
         // views.(children)+ 这段路径搜索只支持name或数组下标
         LocationDocument locationDocument = locationDoc(pathSchemas);
-        return get(locationDocument.getNextJsonPath(), excludes, locationDocument.getObjectIds());
+        return get(locationDocument, excludes);
     }
 
-    private Object get(String jsonPath, List<String> excludes, List<ObjectId> objectIds) {
-        RepositoryOperationContext context = RepositoryOperationContext.builder().objectIds(objectIds).appId(AppIdContext.get()).build();
-        Object ret = appRepository.get(context, jsonPath, excludes);
+    private Object get(LocationDocument locationDocument, List<String> excludes) {
+        Object ret;
+        if (StringUtils.hasLength(locationDocument.getInnerJsonPath())) {
+            RepositoryOperationContext context = RepositoryOperationContext.builder().objectIds(locationDocument.getObjectIds()).appId(AppIdContext.get()).build();
+            ret = appRepository.get(context, locationDocument.getInnerJsonPath(), excludes);
+        } else {
+            ret = appRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), locationDocument.getOutJsonPath(), new ArrayList<>());
+        }
         return fillSubDoc(ret, excludes);
     }
 
@@ -156,53 +163,57 @@ public class SplitMdbAppRepositoryImpl implements AppRepository {
             }
         }
         LocationDocument locationDocument = new LocationDocument();
+        List<ObjectId> objectIds = new ArrayList<>();
+        List<JsonPathSchema> queryPath;
+        List<JsonPathSchema> innerPath;
         if (needSplit) {
-            List<ObjectId> objectIds = new ArrayList<>();
-            Object appRet = appRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), pathConverter.reverseConvert(pathSchemas.subList(0, lastIndex)), new ArrayList<>());
-            if (appRet instanceof Collection) {
-                ((Collection<?>) appRet).stream().forEach(v -> objectIds.add((ObjectId) ((Map) v).get(REFERENCE_OBJECT_ID)));
-            } else {
-                objectIds.add((ObjectId) ((Map) appRet).get(REFERENCE_OBJECT_ID));
-            }
-            locationDocument.setPreJsonPath(pathConverter.reverseConvert(pathSchemas.subList(0, lastIndex)));
-            locationDocument.setNextJsonPath(pathConverter.reverseConvert(pathSchemas.subList(lastIndex, pathSchemas.size())));
-            locationDocument.setObjectIds(objectIds);
+            queryPath = pathSchemas.subList(0, lastIndex);
+            innerPath = pathSchemas.subList(lastIndex, pathSchemas.size());
         } else {
             // 不需要拆分
-            locationDocument.setPreJsonPath(null);
-            locationDocument.setNextJsonPath(pathConverter.reverseConvert(pathSchemas));
-            locationDocument.setObjectIds(new ArrayList<>());
+            queryPath = pathSchemas;
+            innerPath = null;
         }
+        Object appRet = appRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), pathConverter.reverseConvert(queryPath), new ArrayList<>());
+        if (appRet instanceof Collection) {
+            ((Collection<?>) appRet).stream().forEach(v -> objectIds.add((ObjectId) ((Map) v).get(REFERENCE_OBJECT_ID)));
+        } else {
+            objectIds.add((ObjectId) ((Map) appRet).get(REFERENCE_OBJECT_ID));
+        }
+        List<ObjectId> objectIdRet = objectIds.stream().filter(v->v!=null).collect(Collectors.toList());
+        locationDocument.setOutJsonPath(pathConverter.reverseConvert(queryPath));
+        locationDocument.setInnerJsonPath(pathConverter.reverseConvert(innerPath));
+        locationDocument.setObjectIds(objectIdRet);
         return locationDocument;
     }
 
     public class LocationDocument {
         private List<ObjectId> objectIds;
-        private String nextJsonPath;
-        private String preJsonPath;
+        private String innerJsonPath;
+        private String outJsonPath;
 
         public List<ObjectId> getObjectIds() {
             return objectIds;
         }
 
-        public String getNextJsonPath() {
-            return nextJsonPath;
+        public String getInnerJsonPath() {
+            return innerJsonPath;
         }
 
-        public void setNextJsonPath(String nextJsonPath) {
-            this.nextJsonPath = nextJsonPath;
+        public void setInnerJsonPath(String innerJsonPath) {
+            this.innerJsonPath = innerJsonPath;
         }
 
         public void setObjectIds(List<ObjectId> objectIds) {
             this.objectIds = objectIds;
         }
 
-        public String getPreJsonPath() {
-            return preJsonPath;
+        public String getOutJsonPath() {
+            return outJsonPath;
         }
 
-        public void setPreJsonPath(String preJsonPath) {
-            this.preJsonPath = preJsonPath;
+        public void setOutJsonPath(String outJsonPath) {
+            this.outJsonPath = outJsonPath;
         }
     }
 }

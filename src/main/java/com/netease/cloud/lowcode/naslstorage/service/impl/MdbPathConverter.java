@@ -3,6 +3,7 @@ package com.netease.cloud.lowcode.naslstorage.service.impl;
 import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -47,6 +48,9 @@ public class MdbPathConverter implements PathConverter<List<JsonPathSchema>> {
 
     @Override
     public String reverseConvert(List<JsonPathSchema> jsonPathSchemas) {
+        if (CollectionUtils.isEmpty(jsonPathSchemas)) {
+            return null;
+        }
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < jsonPathSchemas.size(); i++){
             JsonPathSchema v = jsonPathSchemas.get(i);

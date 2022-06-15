@@ -1,5 +1,6 @@
 package com.netease.cloud.lowcode.naslstorage.service.impl;
 
+import com.netease.cloud.lowcode.naslstorage.common.Global;
 import com.netease.cloud.lowcode.naslstorage.dto.ActionDTO;
 import com.netease.cloud.lowcode.naslstorage.dto.QueryDTO;
 import com.netease.cloud.lowcode.naslstorage.entity.path.PartPath;
@@ -81,15 +82,16 @@ public class StorageServiceImpl implements StorageService {
     private void solve(ActionDTO actionDTO) {
         String action = actionDTO.getAction(), rawPath = actionDTO.getPath();
         Map<String, Object> object = actionDTO.getObject();
-        // path为空则初始化app或者删除app
-        if (actionDTO.getPath().isEmpty()) {
+        // path为app则初始化app或者删除app
+        if (Global.APP.equals(rawPath)) {
             if ("create".equals(action)) {
                 mongoTemplate.dropCollection("app"); // used for test
                 appBatchRepository.initApp(actionDTO.getObject());
+                return;
             } else if ("delete".equals(action)) {
                 mongoTemplate.dropCollection("app"); // used for test
+                return;
             }
-            return;
         }
 
         String[] splits = PathUtil.splitJsonPath(rawPath);

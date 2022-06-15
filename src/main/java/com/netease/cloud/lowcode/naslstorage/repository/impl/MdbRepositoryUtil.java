@@ -22,20 +22,20 @@ public class MdbRepositoryUtil implements RepositoryUtil {
 
     @Override
     public Map saveView(Map v) {
-        List<Map> children = (List<Map>) v.get("children");
+        List<Map> children = (List<Map>) v.get(Global.CHILDREN);
         List<Map> childIds = new ArrayList<>();
         if (children != null) {
             for (Map child : children) {
                 childIds.add(saveView(child));
             }
         }
-        v.put("children", childIds);
+        v.put(Global.CHILDREN, childIds);
         ObjectId objectId = insertDocument(v);
 
         Map<String, Object> retId = new HashMap();
-        retId.put("refId", objectId);
+        retId.put(Global.REFERENCE_OBJECT_ID, objectId);
         retId.put("name", v.get("name"));
-        retId.put("children", v.get("children"));
+        retId.put(Global.CHILDREN, v.get(Global.CHILDREN));
         return retId;
     }
 
@@ -52,7 +52,7 @@ public class MdbRepositoryUtil implements RepositoryUtil {
     public Map saveLogic(Map logic) {
         ObjectId objectId = insertDocument(logic);
         Map newLogic = new HashMap();
-        newLogic.put("refId", objectId);
+        newLogic.put(Global.REFERENCE_OBJECT_ID, objectId);
         newLogic.put("name", logic.get("name"));
         return newLogic;
     }
@@ -68,19 +68,19 @@ public class MdbRepositoryUtil implements RepositoryUtil {
 
     @Override
     public void deleteView(Map v) {
-        List<Map> children = (List<Map>) v.get("children");
+        List<Map> children = (List<Map>) v.get(Global.CHILDREN);
         if (children != null) {
             for (Map child : children) {
                 deleteView(child);
             }
         }
         ObjectId id;
-        if (v.containsKey("refId")) {
+        if (v.containsKey(Global.REFERENCE_OBJECT_ID)) {
             id = (ObjectId) v.get(Global.REFERENCE_OBJECT_ID);
         } else {
             id = (ObjectId) v.get(Global.OBJECT_ID);
         }
-        removeDocument(id, "app");
+        removeDocument(id, Global.APP);
     }
 
     @Override
@@ -93,7 +93,7 @@ public class MdbRepositoryUtil implements RepositoryUtil {
     @Override
     public void deleteLogic(Map logic) {
         ObjectId objectId;
-        if (logic.containsKey("refId")) {
+        if (logic.containsKey(Global.REFERENCE_OBJECT_ID)) {
             objectId = (ObjectId) logic.get(Global.REFERENCE_OBJECT_ID);
         } else {
             objectId = (ObjectId) logic.get(Global.OBJECT_ID);
@@ -111,14 +111,14 @@ public class MdbRepositoryUtil implements RepositoryUtil {
     @Override
     public ObjectId insertDocument(Map o) {
         Document d = new Document(o);
-        mongoTemplate.getCollection("app").insertOne(d);
-        return d.getObjectId("_id");
+        mongoTemplate.getCollection(Global.APP).insertOne(d);
+        return d.getObjectId(Global.OBJECT_ID);
     }
 
     @Override
     public void removeDocument(ObjectId objectId, String collectionName) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("_id").is(objectId));
+        query.addCriteria(Criteria.where(Global.OBJECT_ID).is(objectId));
         mongoTemplate.remove(query, collectionName);
     }
 
@@ -126,7 +126,7 @@ public class MdbRepositoryUtil implements RepositoryUtil {
     /**
      * 根据paths拼接setKey
      * 返回setKey列表，因为切片语法可能产生多个setKey
-     * 注意！！！ 拼接的同时给update添加了arrayFilter
+     * 注意！！！ 拼接setKey的同时给update添加了arrayFilter
      */
     public List<String> getSetKeys(List<PartPath> paths, int size, Update update) {
         if (paths.size() == 0) {
@@ -139,7 +139,7 @@ public class MdbRepositoryUtil implements RepositoryUtil {
         setKeys.add(new StringBuilder());
         for (int i = 0; i < size; i++) {
             PartPath partPath = paths.get(i);
-            if (partPath.getType().equals("kv")) {
+            if (partPath.getType().equals(Global.PATH_TYPE_KV)) {
                 KvPath kvPath = (KvPath) partPath;
                 String arrName = kvPath.getArrName();
                 String key = kvPath.getKey();
@@ -150,14 +150,14 @@ public class MdbRepositoryUtil implements RepositoryUtil {
                     setKey.append(arrName).append(".$[").append(var).append("]");
                 }
                 update.filterArray(Criteria.where(var + "." + key).is(value));
-            } else if (partPath.getType().equals("idx")) {
+            } else if (partPath.getType().equals(Global.PATH_TYPE_IDX)) {
                 IdxPath idxPath = (IdxPath) partPath;
                 String arrName = idxPath.getArrName();
                 int idx = idxPath.getIdx();
                 for (StringBuilder setKey : setKeys) {
                     setKey.append(arrName).append(".").append(idx);
                 }
-            } else if (partPath.getType().equals("range")) {
+            } else if (partPath.getType().equals(Global.PATH_TYPE_RANGE)) {
                 RangePath rangePath = (RangePath) partPath;
                 int start = rangePath.getStart();
                 int end = rangePath.getEnd();

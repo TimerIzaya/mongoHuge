@@ -1,5 +1,6 @@
 package com.netease.cloud.lowcode.naslstorage.service.impl;
 
+import com.netease.cloud.lowcode.naslstorage.common.Global;
 import com.netease.cloud.lowcode.naslstorage.entity.path.*;
 import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
@@ -73,12 +74,13 @@ public class MdbPathConverter implements PathConverter<List<JsonPathSchema>> {
         }
         return builder.toString();
     }
+
     @Override
     public List<PartPath> pathForSetKey(String jsonPath) {
         List<PartPath> ret = new ArrayList<>();
         String[] splitPaths = jsonPath.split("\\.");
         for (String splitPath : splitPaths) {
-            if (splitPath.equals("app")) {
+            if (splitPath.equals(Global.APP)) {
                 continue;
             }
             int i = splitPath.indexOf("["), j = splitPath.indexOf("]"), e = splitPath.indexOf("="), r = splitPath.indexOf(":");

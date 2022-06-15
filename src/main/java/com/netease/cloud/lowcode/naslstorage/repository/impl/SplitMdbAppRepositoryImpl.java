@@ -23,12 +23,10 @@ import java.util.stream.Collectors;
 
 /**
  * mdb 应用仓库包装类，提供文档拆分能力
- *
  * @author pingerchen
  */
 @Service("splitMdbAppRepositoryImpl")
 public class SplitMdbAppRepositoryImpl implements AppRepository {
-
     @Resource(name = "mdbAppRepositoryImpl")
     private AppRepository appRepository;
 
@@ -174,7 +172,7 @@ public class SplitMdbAppRepositoryImpl implements AppRepository {
         } else {
             objectIds.add((ObjectId) ((Map) appRet).get(Global.REFERENCE_OBJECT_ID));
         }
-        List<ObjectId> objectIdRet = objectIds.stream().filter(v -> v != null).collect(Collectors.toList());
+        List<ObjectId> objectIdRet = objectIds.stream().filter(v->v!=null).collect(Collectors.toList());
         locationDocument.setOutJsonPath(pathConverter.reverseConvert(queryPath));
         locationDocument.setInnerJsonPath(pathConverter.reverseConvert(innerPath));
         locationDocument.setObjectIds(objectIdRet);

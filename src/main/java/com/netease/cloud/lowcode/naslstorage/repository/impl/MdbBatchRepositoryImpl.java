@@ -4,7 +4,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import com.netease.cloud.lowcode.naslstorage.common.Global;
 import com.netease.cloud.lowcode.naslstorage.context.AppIdContext;
-import com.netease.cloud.lowcode.naslstorage.context.RepositoryOperationContext;
 import com.netease.cloud.lowcode.naslstorage.entity.LocationDocument;
 import com.netease.cloud.lowcode.naslstorage.entity.path.IdxPath;
 import com.netease.cloud.lowcode.naslstorage.entity.path.KvPath;
@@ -13,7 +12,6 @@ import com.netease.cloud.lowcode.naslstorage.repository.AppBatchRepository;
 import com.netease.cloud.lowcode.naslstorage.repository.RepositoryUtil;
 import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
-import lombok.SneakyThrows;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -22,6 +20,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -61,6 +60,7 @@ public class MdbBatchRepositoryImpl implements AppBatchRepository {
      * @return:
      */
     private List<ObjectId> getFinalDocs(String outerPath) {
+        outerPath = Global.APP + "." + outerPath;
         List<JsonPathSchema> convert = pathConverter.convert(outerPath);
         LocationDocument location = splitUtil.locationDoc(convert);
         return location.getObjectIds();
@@ -86,7 +86,7 @@ public class MdbBatchRepositoryImpl implements AppBatchRepository {
             createAtTargetIndex(query, paths, object);
         } else if (!innerPath.isEmpty()) {
             /**
-             *  存在外部路径，不需要修改app结构
+             *  存在外部路径，存在内部路径，不需要修改app结构
              *  对所有目标文档进行create
              *  路径用例："path": "app.views[2].children[3].children[4].elements[5].properties[6]"
              */
@@ -99,13 +99,13 @@ public class MdbBatchRepositoryImpl implements AppBatchRepository {
             createAtTargetIndex(query, paths, object);
         } else {
             /**
-             *  不存在内部路径，需要修改app结构
+             *  存在外部路径，不存在内部路径，需要修改app结构
              *  路径用例: "path": "app.views[2].children[3].children[4]"
              */
             // 先保存生成的view子文档
             Map map = repoUtil.saveView(object);
 
-            // 修改app结构
+            // 更新app结构
             Query query = new Query(Criteria.where(Global.APP_ID).is(appId));
             List<PartPath> paths = pathConverter.pathForSetKey(outerPath);
             createAtTargetIndex(query, paths, map);
@@ -123,9 +123,9 @@ public class MdbBatchRepositoryImpl implements AppBatchRepository {
         List<String> setKeys = repoUtil.getSetKeys(paths, paths.size() - 1, update);
         for (String setKey : setKeys) {
             String finalSetKey = setKey.isEmpty() ? "" : setKey + ".";
-            IdxPath lastIdxPath = (IdxPath) paths.get(paths.size() - 1); // 获得最后一个path
-            finalSetKey += lastIdxPath.getArrName(); // 指定数组
-            int idx = lastIdxPath.getIdx(); // 指定索引
+            IdxPath lastIdxPath = (IdxPath) paths.get(paths.size() - 1);
+            finalSetKey += lastIdxPath.getArrName(); // 根据lastPath确定要create的数组
+            int idx = lastIdxPath.getIdx(); // // 根据lastPath确定要create的数组位置
             update.push(finalSetKey).atPosition(idx).value(object);
         }
         UpdateResult app = mongoTemplate.updateFirst(query, update, Global.COLLECTION_NAME);
@@ -181,14 +181,14 @@ public class MdbBatchRepositoryImpl implements AppBatchRepository {
             /**
              *  存在外部路径，不存在内部路径
              *  特殊情况：更新name、更新children
+             *  注意！！！更新name需要特别处理，放在最后更新，防止paths的lastPath是跟据name定位的
              */
-
+            // 保留非特殊字段，批量修改
             Map<String, Object> commonField = new HashMap<>();
-            // nameMap放在if判断外面，用于判断是否修改了name字段
-            // 如果是，要放到最后同步更新app，以防JsonPath根据name修改字段
             boolean nameExist = false;
             for (String key : object.keySet()) {
                 if ("name".equals(key)) {
+                    // 修改name字段 最后执行
                     nameExist = true;
                 } else if (Global.CHILDREN.equals(key)) {
                     // 先删除children子文档
@@ -201,7 +201,7 @@ public class MdbBatchRepositoryImpl implements AppBatchRepository {
                     List<Map> refIds = repoUtil.saveViews(children);
 
                     // 同步更新当前view子文档的结构
-                    List<ObjectId> finalDocIds = getFinalDocs(rawPath);
+                    List<ObjectId> finalDocIds = getFinalDocs(outerPath);
                     Query queryForSubDoc = new Query();
                     for (ObjectId id : finalDocIds) {
                         queryForSubDoc.addCriteria(Criteria.where(Global.OBJECT_ID).is(id));
@@ -214,13 +214,11 @@ public class MdbBatchRepositoryImpl implements AppBatchRepository {
                     Query query = new Query(Criteria.where(Global.APP_ID).is(appId));
                     List<PartPath> paths = pathConverter.pathForSetKey(outerPath);
                     updateWhenSetKeyDone(query, paths, childrenMap);
-
                 } else {
                     commonField.put(key, object.get(key));
                 }
             }
             if (nameExist) {
-                // 由于查询模块需要在拆分逻辑中加入name, 所以子文档更新name的时候要和app同步更新
                 // 先更新子文档的name
                 Query queryForSubDoc = new Query();
                 List<ObjectId> targetDocIds = getFinalDocs(outerPath);
@@ -371,7 +369,7 @@ public class MdbBatchRepositoryImpl implements AppBatchRepository {
 
 
     /**
-     * @description: mongodb只有按kv条件删除，所以删除字段、KV删除数组元素、索引删除数组元素实现不一样，要根据最后一个path的类型删除
+     * @description: mongodb只有按kv条件删除，所以删除字段、KV删除数组元素、索引删除数组元素三种实现不一样
      * @return:
      */
     public void deleteByLastPathType(Query query, List<PartPath> paths) {
@@ -426,7 +424,7 @@ public class MdbBatchRepositoryImpl implements AppBatchRepository {
     /**
      * @description: 根据索引删除对象，mongo不直接支持
      * 这里选择先给要删除的对象加上 deleted:true 字段，再根据此条件删除，需要两次IO
-     * 暂未找到更佳方案
+     * todo 暂未找到更佳方案
      * @return:
      */
     public void deleteByIdxOrRange(Query query, List<PartPath> paths) {
@@ -460,10 +458,8 @@ public class MdbBatchRepositoryImpl implements AppBatchRepository {
 
 
     public void printUpdateResult(UpdateResult app) {
-        long matchedCount = app.getMatchedCount();
-        long modifiedCount = app.getModifiedCount();
-        System.out.println("matchCount:" + matchedCount);
-        System.out.println("modifiedCount:" + modifiedCount);
+        System.out.println("matchCount:" + app.getMatchedCount());
+        System.out.println("modifiedCount:" + app.getModifiedCount());
     }
 
 }

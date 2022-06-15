@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
  */
 @Service("splitMdbAppRepositoryImpl")
 public class SplitMdbAppRepositoryImpl implements AppRepository {
+
     @Resource(name = "mdbAppRepositoryImpl")
     private AppRepository appRepository;
 

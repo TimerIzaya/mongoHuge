@@ -22,79 +22,71 @@
 #### **Create**
 
 - **存在外部路径**
-
-- - **存在内部路径**
-
-- - "path": "app.**views[2].children[3].children[4]**.elements[5].properties[6]"
+  - **存在内部路径**
+    - "path": "app.**views[2].children[3].children[4]**.elements[5].properties[6]"
 
 - **无内部路径**（需要同步更新app结构）
-
-- - "path": "app.**views[2].children[3].children[4]**"
+  - "path": "app.**views[2].children[3].children[4]**"
 
 - **无外部路径**
+  - "path": "app.processes[2].properties[6]"
 
-- - "path": "app.processes[2].properties[6]"
 
 
 
 **Update**
 
 - **存在外部路径**
-
-- - **存在内部路径**
-
-- - "path": "app.**views[2].children[3].children[4]**.elements[5].properties[6]"
+  - **存在内部路径**
+    - "path": "app.**views[2].children[3].children[4]**.elements[5].properties[6]"
 
 - **无内部路径**
+  - **更新普通字段**
+    - "path": "app.**views[2].children[3].children[4]**"  -> {type: "xxx"}
 
-- - **更新普通字段**
+  - **更新name字段**（需要同步更新app结构中对应的name，因为name保留用于查询）
+    - "path": "app.**views[2].children[3].children[4]**"  -> {name: "xxx"}
 
-- - "path": "app.**views[2].children[3].children[4]**"  -> {type: "xxx"}
-
-- **更新name字段**（需要同步更新app结构中对应的name，因为name保留用于查询）
-
-- - "path": "app.**views[2].children[3].children[4]**"  -> {name: "xxx"}
-
-- **更新children数组**（需要同步更新app结构）
-
-- - "path": "app**.views[2].children[3].children[4]**"    -> {children: {[],[],[]}}
+  - **更新children数组**（需要同步更新app结构）
+    - "path": "app**.views[2].children[3].children[4]**"    -> {children: {[],[],[]}}
 
 - **无外部路径**
+  - **更新普通字段**
+    - "path": "app.processes[2].properties[6]" -> {type:"xxx"}
 
-- - **更新普通字段**
+  - **更新views数组**（需要同步更新app结构）
+    - "path": "app" -> {views:{[],[],[]}}
 
-- - "path": "app.processes[2].properties[6]" -> {type:"xxx"}
+  - **更新logic数组****（需要同步更新app结构）
+    - "path": "app" -> {logics:{[],[],[]}}
 
-- **更新views数组**（需要同步更新app结构）
 
-- - - - "path": "app" -> {views:{[],[],[]}}
 
-- **更新logic数组****（需要同步更新app结构）
-- - - "path": "app" -> {logics:{[],[],[]}}
 
 **Delete**
 
 - **存在外部路径**
 
-- - **存在内部路径**
-
-- - "path": "app.**views[2].children[3].children[4]**.elements[5].properties[6]"
-- "path": "app.**views[2].children[3].children[4]**.type"
-- "path": "app.**views[2].children[3].children[4]**.name"（需要确认需求，是否可能删除name，如果是，也要更新app结构）
-- "path": "app.**views[2]**.children" （需要同步更新app结构）
+  - **存在内部路径**
+    - "path": "app.**views[2].children[3].children[4]**.elements[5].properties[6]"
+    - "path": "app.**views[2].children[3].children[4]**.type"
+    - "path": "app.**views[2].children[3].children[4]**.name"（需要确认需求，是否可能删除name，如果是，也要更新app结构）
+    - "path": "app.**views[2]**.children" （需要同步更新app结构）
 
 - **无内部路径**
 
-- - **删除view或者logic**
+  - **删除view或者logic**
 
-- - "path": "app.**views[2].children[3].children[4]**"  （需要同步更新app结构）
-- "path": "app.logics[2]" （需要同步更新app结构）
+    - "path": "app.**views[2].children[3].children[4]**"  （需要同步更新app结构）
+
+      "path": "app.**logics[2]**" （需要同步更新app结构）
 
 - **无外部路径**
 
-- - "path": "app.processes[0]"
-- "path": "app.logics"（需要同步更新app结构）
-- "path": "app.views"（需要同步更新app结构
+  - "path": "app.processes[0]"
+    - "path": "app.logics"（需要同步更新app结构）
+    - "path": "app.views"（需要同步更新app结构
+
 
 
 

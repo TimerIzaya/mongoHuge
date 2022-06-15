@@ -1,15 +1,7 @@
 package com.netease.cloud.lowcode.naslstorage.util;
 
 
-import com.netease.cloud.lowcode.naslstorage.entity.LocationDocument;
-import com.netease.cloud.lowcode.naslstorage.repository.impl.SplitMdbAppRepositoryImpl;
-import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
-import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
-import org.bson.types.ObjectId;
-
-import javax.annotation.Resource;
 import java.util.Arrays;
-import java.util.List;
 
 public class PathUtil {
 

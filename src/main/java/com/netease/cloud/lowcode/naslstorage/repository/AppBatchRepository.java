@@ -1,8 +1,5 @@
 package com.netease.cloud.lowcode.naslstorage.repository;
 
-import com.netease.cloud.lowcode.naslstorage.entity.path.PartPath;
-
-import java.util.List;
 import java.util.Map;
 
 public interface AppBatchRepository {

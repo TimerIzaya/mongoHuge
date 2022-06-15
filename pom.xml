@@ -55,11 +55,14 @@
 			<artifactId>lombok</artifactId>
 			<version>${lombok.version}</version>
 		</dependency>
+<<<<<<< HEAD
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+=======
+>>>>>>> 1f45b1dcca872c615d9709a23f7f7d9d6c6dbb6b
 
         <!--<dependency>
             <groupId>org.mongodb</groupId>

@@ -17,10 +17,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("mdbAppRepositoryImpl")
 public class MdbQueryRepositoryImpl implements MdbQueryRepository {
@@ -93,6 +90,9 @@ public class MdbQueryRepositoryImpl implements MdbQueryRepository {
 
         AggregationResults<Map> aggregateResult = mongoTemplate.aggregate(aggregation, Global.COLLECTION_NAME, Map.class);
 
+        if (CollectionUtils.isEmpty(aggregateResult.getMappedResults())) {
+            return new HashMap<>();
+        }
         Map mongoResult = aggregateResult.getMappedResults().get(0);
         if (ObjectUtils.isEmpty(mongoResult)) {
             return mongoResult;

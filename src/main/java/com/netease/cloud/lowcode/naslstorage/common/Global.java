@@ -12,7 +12,7 @@ import java.util.List;
 public class Global {
     static public String APP = "app";
     static public String COLLECTION_NAME = APP;
-    static public String APP_ID = "name";
+    static public String APP_ID = "id";
     static public String OBJECT_ID = "_id";
     static public String NEED_SPLIT_DOC_VIEWS = "views";
     static public String NEED_SPLIT_DOC_CHILDREN = "children";

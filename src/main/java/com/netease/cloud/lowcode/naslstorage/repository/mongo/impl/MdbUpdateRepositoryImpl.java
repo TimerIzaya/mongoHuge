@@ -13,6 +13,7 @@ import com.netease.cloud.lowcode.naslstorage.repository.mongo.MdbRepositoryUtil;
 import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -22,6 +23,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import javax.xml.ws.soap.Addressing;
 import java.util.*;
 
 /**
@@ -33,7 +35,7 @@ import java.util.*;
 @Repository
 public class MdbUpdateRepositoryImpl implements MdbUpdateRepository {
 
-    @Resource
+    @Autowired
     private MongoTemplate mongoTemplate;
 
     @Resource

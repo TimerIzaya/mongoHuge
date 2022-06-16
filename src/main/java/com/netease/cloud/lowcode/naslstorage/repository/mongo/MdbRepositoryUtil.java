@@ -1,4 +1,4 @@
-package com.netease.cloud.lowcode.naslstorage.repository;
+package com.netease.cloud.lowcode.naslstorage.repository.mongo;
 
 import com.netease.cloud.lowcode.naslstorage.entity.path.PartPath;
 import org.bson.types.ObjectId;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public interface RepositoryUtil {
+public interface MdbRepositoryUtil {
 
     /**
      * @description: 递归单个view对象并存储

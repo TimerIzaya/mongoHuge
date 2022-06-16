@@ -1,4 +1,4 @@
-package com.netease.cloud.lowcode.naslstorage.repository.impl;
+package com.netease.cloud.lowcode.naslstorage.repository.mongo.impl;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
@@ -8,8 +8,8 @@ import com.netease.cloud.lowcode.naslstorage.entity.LocationDocument;
 import com.netease.cloud.lowcode.naslstorage.entity.path.IdxPath;
 import com.netease.cloud.lowcode.naslstorage.entity.path.KvPath;
 import com.netease.cloud.lowcode.naslstorage.entity.path.PartPath;
-import com.netease.cloud.lowcode.naslstorage.repository.AppBatchRepository;
-import com.netease.cloud.lowcode.naslstorage.repository.RepositoryUtil;
+import com.netease.cloud.lowcode.naslstorage.repository.mongo.MdbUpdateRepository;
+import com.netease.cloud.lowcode.naslstorage.repository.mongo.MdbRepositoryUtil;
 import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
 import org.bson.types.ObjectId;
@@ -31,19 +31,19 @@ import java.util.*;
  */
 
 @Repository
-public class MdbBatchRepositoryImpl implements AppBatchRepository {
+public class MdbUpdateRepositoryImpl implements MdbUpdateRepository {
 
     @Resource
     private MongoTemplate mongoTemplate;
 
     @Resource
-    private RepositoryUtil repoUtil;
+    private MdbRepositoryUtil repoUtil;
 
     @Resource(name = "mdbPathConverter")
     private PathConverter pathConverter;
 
     @Resource(name = "splitMdbAppRepositoryImpl")
-    private SplitMdbAppRepositoryImpl splitUtil;
+    private MdbSplitQueryRepositoryImpl splitUtil;
 
     @Override
     public void initApp(Map<String, Object> object) {

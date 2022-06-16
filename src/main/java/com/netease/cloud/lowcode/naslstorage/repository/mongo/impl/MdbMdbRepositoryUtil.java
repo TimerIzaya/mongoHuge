@@ -1,8 +1,8 @@
-package com.netease.cloud.lowcode.naslstorage.repository.impl;
+package com.netease.cloud.lowcode.naslstorage.repository.mongo.impl;
 
 import com.netease.cloud.lowcode.naslstorage.common.Global;
 import com.netease.cloud.lowcode.naslstorage.entity.path.*;
-import com.netease.cloud.lowcode.naslstorage.repository.RepositoryUtil;
+import com.netease.cloud.lowcode.naslstorage.repository.mongo.MdbRepositoryUtil;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -15,7 +15,7 @@ import javax.annotation.Resource;
 import java.util.*;
 
 @Repository
-public class MdbRepositoryUtil implements RepositoryUtil {
+public class MdbMdbRepositoryUtil implements MdbRepositoryUtil {
 
     @Resource
     private MongoTemplate mongoTemplate;

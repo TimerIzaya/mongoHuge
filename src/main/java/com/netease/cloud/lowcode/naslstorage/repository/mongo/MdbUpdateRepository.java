@@ -1,8 +1,8 @@
-package com.netease.cloud.lowcode.naslstorage.repository;
+package com.netease.cloud.lowcode.naslstorage.repository.mongo;
 
 import java.util.Map;
 
-public interface AppBatchRepository {
+public interface MdbUpdateRepository {
 
     void initApp(Map<String, Object> object);
 

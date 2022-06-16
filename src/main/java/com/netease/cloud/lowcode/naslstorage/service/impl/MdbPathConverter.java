@@ -42,7 +42,6 @@ public class MdbPathConverter implements PathConverter<List<JsonPathSchema>> {
                     pathSchema.setValue(param.get(0));
                 }
             }
-
             ret.add(pathSchema);
         }
         return ret;

@@ -3,16 +3,10 @@ package com.netease.cloud.lowcode.naslstorage.service.impl;
 import com.netease.cloud.lowcode.naslstorage.common.Global;
 import com.netease.cloud.lowcode.naslstorage.dto.ActionDTO;
 import com.netease.cloud.lowcode.naslstorage.dto.QueryDTO;
-import com.netease.cloud.lowcode.naslstorage.repository.mongo.MdbUpdateRepository;
-import com.netease.cloud.lowcode.naslstorage.repository.mongo.impl.MdbSplitQueryRepositoryImpl;
 import com.netease.cloud.lowcode.naslstorage.repository.redis.RedisAppRepository;
-import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
 import com.netease.cloud.lowcode.naslstorage.service.StorageService;
 import com.netease.cloud.lowcode.naslstorage.util.PathUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -21,21 +15,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Service("mongoService")
-public class StorageServiceImpl implements StorageService {
+/**
+ * @description:
+ * @author: sunhaoran
+ * @time: 2022/6/16 14:43
+ */
 
-    @Resource(name = "splitMdbAppRepositoryImpl")
-    private MdbSplitQueryRepositoryImpl appQueryRepository;
 
-    @Autowired
-    private MdbUpdateRepository mdbUpdateRepository;
+@Service("redisService")
+public class RedisStorageServiceImpl implements StorageService {
 
-    @Resource(name = "mdbPathConverter")
-    private PathConverter pathConverter;
 
     @Resource
-    MongoTemplate mongoTemplate;
-
+    RedisAppRepository appRepository;
 
     @Override
     public List<Object> batchQuery(List<QueryDTO> queryDTOS) {
@@ -45,20 +37,11 @@ public class StorageServiceImpl implements StorageService {
         return queryDTOS.stream().map(this::get).collect(Collectors.toList());
     }
 
-
     private Object get(QueryDTO queryDTO) {
-        return appQueryRepository.get(null, queryDTO.getPath(), queryDTO.getExcludes());
+        return appRepository.get(null, queryDTO.getPath(), queryDTO.getExcludes());
     }
 
-
-    /**
-     * 需要支持多文档事务，mongodb版本大于等于4
-     * 默认情况下，MongoDB将自动中止任何运行超过60秒的多文档事务
-     *
-     * @param actionDTOS
-     */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void batch(List<ActionDTO> actionDTOS) {
         if (CollectionUtils.isEmpty(actionDTOS)) {
             return;
@@ -66,31 +49,24 @@ public class StorageServiceImpl implements StorageService {
         actionDTOS.forEach(this::solve);
     }
 
-
     private void solve(ActionDTO actionDTO) {
         String action = actionDTO.getAction(), rawPath = actionDTO.getPath();
         Map<String, Object> object = actionDTO.getObject();
         // path为app则初始化app或者删除app
         if (Global.APP.equals(rawPath)) {
             if ("create".equals(action)) {
-                mongoTemplate.dropCollection(Global.APP); // used for test
-                mdbUpdateRepository.initApp(actionDTO.getObject());
-                return;
-            } else if ("delete".equals(action)) {
-                mongoTemplate.dropCollection(Global.APP); // used for test
+                appRepository.initApp(actionDTO.getObject());
                 return;
             }
         }
 
         String[] splits = PathUtil.splitJsonPath(rawPath);
         if ("create".equals(action)) {
-            mdbUpdateRepository.create(splits[0], splits[1], object);
+            appRepository.create(rawPath, object);
         } else if ("update".equals(action)) {
-            mdbUpdateRepository.update(splits[0], splits[1], object);
+            appRepository.update(rawPath, object);
         } else if ("delete".equals(action)) {
-            mdbUpdateRepository.delete(splits[0], splits[1]);
+            appRepository.delete(rawPath);
         }
     }
-
-
 }

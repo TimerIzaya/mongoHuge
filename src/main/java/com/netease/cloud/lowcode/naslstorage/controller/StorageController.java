@@ -16,7 +16,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/storage")
 public class StorageController {
-    @Resource
+
+    @Resource(name = "redisService")
     private StorageService storageService;
 
     @PostMapping("/batch")
@@ -24,9 +25,7 @@ public class StorageController {
         if (CollectionUtils.isEmpty(actionDTOS)) {
             return;
         }
-        long time = System.currentTimeMillis();
         storageService.batch(actionDTOS);
-        System.out.println(System.currentTimeMillis() - time);
     }
 
     @PostMapping("/batchQuery")
@@ -34,7 +33,6 @@ public class StorageController {
         if (CollectionUtils.isEmpty(queryDTOS)) {
             return new ArrayList<>();
         }
-
         return storageService.batchQuery(queryDTOS);
     }
 }

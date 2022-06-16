@@ -1,10 +1,10 @@
-package com.netease.cloud.lowcode.naslstorage.repository.impl;
+package com.netease.cloud.lowcode.naslstorage.repository.mongo.impl;
 
 import com.netease.cloud.lowcode.naslstorage.common.Global;
 import com.netease.cloud.lowcode.naslstorage.context.AppIdContext;
 import com.netease.cloud.lowcode.naslstorage.context.RepositoryOperationContext;
 import com.netease.cloud.lowcode.naslstorage.entity.LocationDocument;
-import com.netease.cloud.lowcode.naslstorage.repository.AppRepository;
+import com.netease.cloud.lowcode.naslstorage.repository.mongo.MdbQueryRepository;
 import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
 import org.bson.types.ObjectId;
@@ -26,10 +26,10 @@ import java.util.stream.Collectors;
  * @author pingerchen
  */
 @Service("splitMdbAppRepositoryImpl")
-public class SplitMdbAppRepositoryImpl implements AppRepository {
+public class MdbSplitQueryRepositoryImpl implements MdbQueryRepository {
 
     @Resource(name = "mdbAppRepositoryImpl")
-    private AppRepository appRepository;
+    private MdbQueryRepository mdbQueryRepository;
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -50,9 +50,9 @@ public class SplitMdbAppRepositoryImpl implements AppRepository {
         Object ret;
         if (StringUtils.hasLength(locationDocument.getInnerJsonPath())) {
             RepositoryOperationContext context = RepositoryOperationContext.builder().objectIds(locationDocument.getObjectIds()).appId(AppIdContext.get()).build();
-            ret = appRepository.get(context, locationDocument.getInnerJsonPath(), excludes);
+            ret = mdbQueryRepository.get(context, locationDocument.getInnerJsonPath(), excludes);
         } else {
-            ret = appRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), locationDocument.getOutJsonPath(), new ArrayList<>());
+            ret = mdbQueryRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), locationDocument.getOutJsonPath(), new ArrayList<>());
         }
         return fillSubDoc(ret, excludes);
     }
@@ -167,7 +167,7 @@ public class SplitMdbAppRepositoryImpl implements AppRepository {
             queryPath = pathSchemas;
             innerPath = null;
         }
-        Object appRet = appRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), pathConverter.reverseConvert(queryPath), new ArrayList<>());
+        Object appRet = mdbQueryRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), pathConverter.reverseConvert(queryPath), new ArrayList<>());
         if (appRet instanceof Collection) {
             ((Collection<?>) appRet).stream().forEach(v -> objectIds.add((ObjectId) ((Map) v).get(Global.REFERENCE_OBJECT_ID)));
         } else {

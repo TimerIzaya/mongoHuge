@@ -1,8 +1,8 @@
-package com.netease.cloud.lowcode.naslstorage.repository.impl;
+package com.netease.cloud.lowcode.naslstorage.repository.mongo.impl;
 
 import com.netease.cloud.lowcode.naslstorage.common.Global;
 import com.netease.cloud.lowcode.naslstorage.context.RepositoryOperationContext;
-import com.netease.cloud.lowcode.naslstorage.repository.AppRepository;
+import com.netease.cloud.lowcode.naslstorage.repository.mongo.MdbQueryRepository;
 import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
 import lombok.SneakyThrows;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service("mdbAppRepositoryImpl")
-public class MdbAppRepositoryImpl implements AppRepository {
+public class MdbQueryRepositoryImpl implements MdbQueryRepository {
 
     @Resource
     private MongoTemplate mongoTemplate;

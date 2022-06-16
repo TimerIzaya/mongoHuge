@@ -1,10 +1,10 @@
-package com.netease.cloud.lowcode.naslstorage.repository;
+package com.netease.cloud.lowcode.naslstorage.repository.mongo;
 
 import com.netease.cloud.lowcode.naslstorage.context.RepositoryOperationContext;
 
 import java.util.List;
 
-public interface AppRepository {
+public interface MdbQueryRepository {
 
     Object get(RepositoryOperationContext context, String jsonPath, List<String> excludes);
 }

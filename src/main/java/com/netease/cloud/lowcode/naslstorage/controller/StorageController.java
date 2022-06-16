@@ -17,7 +17,8 @@ import java.util.List;
 @RequestMapping("/api/storage")
 public class StorageController {
 
-    @Resource(name = "redisService")
+//    @Resource(name = "redisService")
+    @Resource(name = "mongoService")
     private StorageService storageService;
 
     @PostMapping("/batch")

@@ -61,7 +61,9 @@ public class MdbAppRepositoryImpl implements AppRepository {
             if (i < paths.size() - 1) {
                 // 不是最后一个元素
                 JsonPathSchema nextPath = paths.get(i + 1);
-                if (!(!StringUtils.hasLength(nextPath.getKey()) && StringUtils.hasLength(nextPath.getValue()))) {
+                // i+1 是最后一个元素并且没有搜索条件，则不进行replaceRoot
+                if ((i + 1 == paths.size() -1) && !StringUtils.hasLength(nextPath.getKey()) && !StringUtils.hasLength(nextPath.getValue())) {
+                } else if (!(!StringUtils.hasLength(nextPath.getKey()) && StringUtils.hasLength(nextPath.getValue()))) {
                     // 非最后一段没有搜索条件的；非下一段是数组下标搜索
                     UnwindOperation unwindOperation = Aggregation.unwind(nextPath.getPath());
                     aggregationOperations.add(unwindOperation);
@@ -71,7 +73,7 @@ public class MdbAppRepositoryImpl implements AppRepository {
             } else {
                 // key、value 都为null，这种情况是路径上没有搜索条件, 通常是JsonObject 里选取字段。只有在最后一段path 中可能为数组，中间不带搜索条件的不能是数组。
                 // mongodb 限制：非数组不能replaceRoot
-                if (!StringUtils.hasLength(path.getKey()) && !StringUtils.hasLength(path.getValue())) {
+                if (!Global.APP.equalsIgnoreCase(path.getPath()) && !StringUtils.hasLength(path.getKey()) && !StringUtils.hasLength(path.getValue())) {
                     lastPathWithoutParam = path.getPath();
                 }
             }

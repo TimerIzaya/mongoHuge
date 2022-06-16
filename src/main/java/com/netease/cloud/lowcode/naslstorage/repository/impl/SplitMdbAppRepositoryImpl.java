@@ -63,7 +63,7 @@ public class SplitMdbAppRepositoryImpl implements AppRepository {
          */
         if (mongoResult instanceof Collection) {
             mongoResult = querySubDoc((List<Map>) mongoResult);
-        } else {
+        } else if (mongoResult instanceof Map) {
             Map tmp = (Map) mongoResult;
             if (!ObjectUtils.isEmpty(tmp.get(Global.REFERENCE_OBJECT_ID))) {
                 // 本层有引用node，需要填充

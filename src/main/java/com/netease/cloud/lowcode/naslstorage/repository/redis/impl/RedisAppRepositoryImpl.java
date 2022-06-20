@@ -11,6 +11,7 @@ import redis.clients.jedis.json.JsonSetParams;
 import redis.clients.jedis.json.Path;
 import redis.clients.jedis.json.Path2;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -28,10 +29,26 @@ public class RedisAppRepositoryImpl implements RedisAppRepository {
         JedisPooled client = JedisPoolUtils.getJedis();
         String appId = AppIdContext.get();
         String convert = JedisPathUtil.convert(jsonPath);
+        Object result;
         if (convert.isEmpty()) {
-            return client.jsonGet(appId);
+            result = client.jsonGet(appId);
+        } else {
+            result = client.jsonGet(appId, new Path(convert));
         }
-        return client.jsonGet(appId, new Path(convert));
+        if (result instanceof Collection) {
+            ((Collection<?>) result).forEach(v->{
+                if (v instanceof Map) {
+                    for (String exclude : excludes) {
+                        ((Map<?, ?>) v).remove(exclude);
+                    }
+                }
+            });
+        } else if (result instanceof Map) {
+            for (String exclude : excludes) {
+                ((Map<?, ?>) result).remove(exclude);
+            }
+        }
+        return result;
     }
 
     @Override

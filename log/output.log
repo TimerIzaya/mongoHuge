@@ -1,0 +1,383 @@
+19:53:41.482 [main] INFO  c.n.c.l.n.NaslstorageApplication - Starting NaslstorageApplication using Java 1.8.0_331 on HIH-D-20981 with PID 13536 (C:\Timer\ideaPros\chenhougen\nasl-storage-master\target\classes started by sunhaoran01 in C:\Timer\ideaPros\chenhougen\nasl-storage-master)
+19:53:41.486 [main] INFO  c.n.c.l.n.NaslstorageApplication - No active profile set, falling back to 1 default profile: "default"
+19:53:42.039 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+19:53:42.071 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 25 ms. Found 0 MongoDB repository interfaces.
+19:53:42.904 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+19:53:42.920 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+19:53:42.921 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+19:53:42.921 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.63]
+19:53:43.119 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+19:53:43.119 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1576 ms
+19:53:43.322 [main] INFO  org.mongodb.driver.cluster - Cluster created with settings {hosts=[127.0.0.1:27017], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=500}
+19:53:43.459 [cluster-ClusterId{value='62ab19c71e47745812933570', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:1, serverValue:311}] to 127.0.0.1:27017
+19:53:43.466 [cluster-ClusterId{value='62ab19c71e47745812933570', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.cluster - Monitor thread successfully connected to server with description ServerDescription{address=127.0.0.1:27017, type=STANDALONE, state=CONNECTED, ok=true, version=ServerVersion{versionList=[5, 0, 8]}, minWireVersion=0, maxWireVersion=13, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=4574600}
+19:53:44.171 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+19:53:44.193 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+19:53:44.202 [main] INFO  c.n.c.l.n.NaslstorageApplication - Started NaslstorageApplication in 3.335 seconds (JVM running for 4.142)
+19:53:46.279 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+19:53:46.279 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+19:53:46.280 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 0 ms
+19:53:46.439 [http-nio-8080-exec-1] INFO  c.n.c.l.n.s.impl.StorageServiceImpl - QueryPath: app
+19:53:46.472 [http-nio-8080-exec-1] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:2, serverValue:312}] to 127.0.0.1:27017
+19:53:46.481 [http-nio-8080-exec-1] DEBUG o.s.data.mongodb.core.MongoTemplate - Dropped collection [app]
+19:53:47.693 [http-nio-8080-exec-3] INFO  c.n.c.l.n.s.impl.StorageServiceImpl - QueryPath: app
+19:53:47.757 [http-nio-8080-exec-3] DEBUG o.s.data.mongodb.core.MongoTemplate - Calling update using query: { "id" : "2dec5a43-ad00-4506-a83f-06bdd9e07659"} and update: { "$set" : { "name" : "sunhaoran", "title" : "ttttttttttttttttttttttttttttt", "type" : "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}} in collection: app
+19:53:47.763 [http-nio-8080-exec-3] INFO  c.n.c.l.n.r.m.i.MdbUpdateRepositoryImpl - match:1 modified:1
+19:57:05.386 [main] INFO  c.n.c.l.n.NaslstorageApplication - Starting NaslstorageApplication using Java 1.8.0_331 on HIH-D-20981 with PID 15344 (C:\Timer\ideaPros\chenhougen\nasl-storage-master\target\classes started by sunhaoran01 in C:\Timer\ideaPros\chenhougen\nasl-storage-master)
+19:57:05.390 [main] INFO  c.n.c.l.n.NaslstorageApplication - No active profile set, falling back to 1 default profile: "default"
+19:57:05.954 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+19:57:05.984 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 24 ms. Found 0 MongoDB repository interfaces.
+19:57:06.813 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+19:57:06.828 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+19:57:06.829 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+19:57:06.829 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.63]
+19:57:07.069 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+19:57:07.069 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1608 ms
+19:57:07.306 [main] INFO  org.mongodb.driver.cluster - Cluster created with settings {hosts=[127.0.0.1:27017], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=500}
+19:57:07.424 [cluster-ClusterId{value='62ab1a9362bae91662ab8868', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:1, serverValue:313}] to 127.0.0.1:27017
+19:57:07.429 [cluster-ClusterId{value='62ab1a9362bae91662ab8868', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.cluster - Monitor thread successfully connected to server with description ServerDescription{address=127.0.0.1:27017, type=STANDALONE, state=CONNECTED, ok=true, version=ServerVersion{versionList=[5, 0, 8]}, minWireVersion=0, maxWireVersion=13, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=3314700}
+19:57:08.084 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+19:57:08.108 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+19:57:08.117 [main] INFO  c.n.c.l.n.NaslstorageApplication - Started NaslstorageApplication in 3.38 seconds (JVM running for 3.981)
+19:57:10.793 [http-nio-8080-exec-2] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+19:57:10.794 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+19:57:10.795 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+19:57:10.949 [http-nio-8080-exec-2] INFO  c.n.c.l.n.s.impl.StorageServiceImpl - QueryPath: app
+19:57:10.986 [http-nio-8080-exec-2] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:2, serverValue:314}] to 127.0.0.1:27017
+19:57:10.998 [http-nio-8080-exec-2] DEBUG o.s.data.mongodb.core.MongoTemplate - Dropped collection [app]
+19:57:12.746 [http-nio-8080-exec-3] INFO  c.n.c.l.n.s.impl.StorageServiceImpl - QueryPath: app
+19:57:12.786 [http-nio-8080-exec-3] DEBUG o.s.data.mongodb.core.MongoTemplate - Calling update using query: { "id" : "2dec5a43-ad00-4506-a83f-06bdd9e07659"} and update: { "$set" : { "name" : "sunhaoran", "title" : "ttttttttttttttttttttttttttttt", "type" : "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}} in collection: app
+19:57:12.792 [http-nio-8080-exec-3] INFO  c.n.c.l.n.r.m.i.MdbUpdateRepositoryImpl - match:1 modified:1
+19:57:14.528 [http-nio-8080-exec-4] INFO  c.n.c.l.n.s.impl.StorageServiceImpl - QueryPath: app
+19:57:14.553 [http-nio-8080-exec-4] DEBUG o.s.data.mongodb.core.MongoTemplate - Executing aggregation: [{ "$match" : { "id" : "2dec5a43-ad00-4506-a83f-06bdd9e07659"}}, { "$unwind" : "$views"}, { "$replaceRoot" : { "newRoot" : "$views"}}] in collection app
+19:57:14.590 [http-nio-8080-exec-4] DEBUG o.s.data.mongodb.core.MongoTemplate - Remove using query: { "_id" : { "$oid" : "62ab1a9762bae91662ab8869"}} in collection: app.
+19:57:14.594 [http-nio-8080-exec-4] DEBUG o.s.data.mongodb.core.MongoTemplate - Remove using query: { "_id" : { "$oid" : "62ab1a9762bae91662ab886a"}} in collection: app.
+19:57:14.598 [http-nio-8080-exec-4] DEBUG o.s.data.mongodb.core.MongoTemplate - Remove using query: { "_id" : { "$oid" : "62ab1a9762bae91662ab886b"}} in collection: app.
+19:57:14.605 [http-nio-8080-exec-4] DEBUG o.s.data.mongodb.core.MongoTemplate - Executing aggregation: [{ "$match" : { "id" : "2dec5a43-ad00-4506-a83f-06bdd9e07659"}}, { "$unwind" : "$logics"}, { "$replaceRoot" : { "newRoot" : "$logics"}}] in collection app
+19:57:14.608 [http-nio-8080-exec-4] DEBUG o.s.data.mongodb.core.MongoTemplate - Remove using query: { "_id" : { "$oid" : "62ab1a9762bae91662ab886c"}} in collection: app.
+19:57:14.611 [http-nio-8080-exec-4] DEBUG o.s.data.mongodb.core.MongoTemplate - Calling update using query: { "id" : "2dec5a43-ad00-4506-a83f-06bdd9e07659"} and update: { "$set" : { "views" : [{ "children" : [{ "children" : [], "name" : "shr1", "refId" : { "$oid" : "62ab1a9a62bae91662ab886e"}}, { "children" : [], "name" : "shr2", "refId" : { "$oid" : "62ab1a9a62bae91662ab886f"}}], "name" : "shr", "refId" : { "$oid" : "62ab1a9a62bae91662ab8870"}}], "scope" : "ios", "logics" : [{ "name" : "logic1", "refId" : { "$oid" : "62ab1a9a62bae91662ab8871"}}]}} in collection: app
+19:57:14.613 [http-nio-8080-exec-4] INFO  c.n.c.l.n.r.m.i.MdbUpdateRepositoryImpl - match:1 modified:1
+19:57:34.533 [http-nio-8080-exec-7] INFO  c.n.c.l.n.s.impl.StorageServiceImpl - QueryPath: app.views[2]
+19:57:34.541 [http-nio-8080-exec-7] DEBUG o.s.data.mongodb.core.MongoTemplate - Calling update using query: { "id" : "2dec5a43-ad00-4506-a83f-06bdd9e07659"} and update: { "$push" : { "views" : { "$position" : 2, "$each" : [{ "children" : [], "name" : "Process10086", "refId" : { "$oid" : "62ab1aae62bae91662ab8872"}}]}}} in collection: app
+19:57:34.544 [http-nio-8080-exec-7] INFO  c.n.c.l.n.r.m.i.MdbUpdateRepositoryImpl - match:1 modified:1
+09:49:24.231 [main] INFO  c.n.c.l.n.NaslstorageApplication - Starting NaslstorageApplication using Java 1.8.0_331 on HIH-D-20981 with PID 14320 (C:\Timer\ideaPros\chenhougen\nasl-storage-master\target\classes started by sunhaoran01 in C:\Timer\ideaPros\chenhougen\nasl-storage-master)
+09:49:24.235 [main] INFO  c.n.c.l.n.NaslstorageApplication - No active profile set, falling back to 1 default profile: "default"
+09:49:24.838 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+09:49:24.872 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 27 ms. Found 0 MongoDB repository interfaces.
+09:49:25.858 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+09:49:25.874 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+09:49:25.875 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+09:49:25.875 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.63]
+09:49:26.121 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+09:49:26.121 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1826 ms
+09:49:26.343 [main] INFO  org.mongodb.driver.cluster - Cluster created with settings {hosts=[127.0.0.1:27017], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=500}
+09:49:26.475 [cluster-ClusterId{value='62abdda65291e45f53f95185', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:1, serverValue:315}] to 127.0.0.1:27017
+09:49:26.482 [cluster-ClusterId{value='62abdda65291e45f53f95185', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.cluster - Monitor thread successfully connected to server with description ServerDescription{address=127.0.0.1:27017, type=STANDALONE, state=CONNECTED, ok=true, version=ServerVersion{versionList=[5, 0, 8]}, minWireVersion=0, maxWireVersion=13, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=4655000}
+09:49:27.284 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+09:49:27.309 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+09:49:27.320 [main] INFO  c.n.c.l.n.NaslstorageApplication - Started NaslstorageApplication in 3.82 seconds (JVM running for 4.493)
+09:49:36.610 [http-nio-8080-exec-2] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+09:49:36.611 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+09:49:36.613 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+09:49:36.762 [http-nio-8080-exec-2] INFO  c.n.c.l.n.s.impl.StorageServiceImpl - QueryPath: app
+09:49:36.793 [http-nio-8080-exec-2] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:2, serverValue:316}] to 127.0.0.1:27017
+09:49:36.803 [http-nio-8080-exec-2] DEBUG o.s.data.mongodb.core.MongoTemplate - Dropped collection [app]
+09:50:04.252 [http-nio-8080-exec-3] INFO  c.n.c.l.n.s.impl.StorageServiceImpl - QueryPath: app.views[name=w333].elements[name=linear].children[name=linear_layout1]
+09:50:04.323 [http-nio-8080-exec-3] DEBUG o.s.data.mongodb.core.MongoTemplate - Executing aggregation: [{ "$match" : { "id" : "2dec5a43-ad00-4506-a83f-06bdd9e07659"}}, { "$unwind" : "$views"}, { "$replaceRoot" : { "newRoot" : "$views"}}, { "$match" : { "name" : "w333"}}] in collection app
+09:50:04.370 [http-nio-8080-exec-3] DEBUG o.s.data.mongodb.core.MongoTemplate - Calling update using query: { "_id" : { "$oid" : "62abddb05291e45f53f95188"}} and update: { "$pull" : { "elements.$[name0159aecb2dd342c799d0a30874904026].children" : { "name" : "linear_layout1"}}} in collection: app
+09:50:04.376 [http-nio-8080-exec-3] INFO  c.n.c.l.n.r.m.i.MdbUpdateRepositoryImpl - match:1 modified:1
+09:55:55.653 [main] INFO  c.n.c.l.n.NaslstorageApplication - Starting NaslstorageApplication using Java 1.8.0_331 on HIH-D-20981 with PID 20932 (C:\Timer\ideaPros\chenhougen\nasl-storage-master\target\classes started by sunhaoran01 in C:\Timer\ideaPros\chenhougen\nasl-storage-master)
+09:55:55.656 [main] INFO  c.n.c.l.n.NaslstorageApplication - No active profile set, falling back to 1 default profile: "default"
+09:55:56.169 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+09:55:56.198 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 23 ms. Found 0 MongoDB repository interfaces.
+09:55:56.971 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+09:55:56.983 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+09:55:56.984 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+09:55:56.984 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.63]
+09:55:57.158 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+09:55:57.158 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1430 ms
+09:55:57.307 [main] INFO  org.mongodb.driver.cluster - Cluster created with settings {hosts=[127.0.0.1:27017], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=500}
+09:55:57.373 [cluster-ClusterId{value='62abdf2da86d48611e42171a', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:1, serverValue:318}] to 127.0.0.1:27017
+09:55:57.378 [cluster-ClusterId{value='62abdf2da86d48611e42171a', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.cluster - Monitor thread successfully connected to server with description ServerDescription{address=127.0.0.1:27017, type=STANDALONE, state=CONNECTED, ok=true, version=ServerVersion{versionList=[5, 0, 8]}, minWireVersion=0, maxWireVersion=13, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=2877700}
+09:55:57.955 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+09:55:57.973 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+09:55:57.982 [main] INFO  c.n.c.l.n.NaslstorageApplication - Started NaslstorageApplication in 2.925 seconds (JVM running for 3.446)
+09:56:03.752 [http-nio-8080-exec-2] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+09:56:03.752 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+09:56:03.753 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 0 ms
+09:56:03.872 [http-nio-8080-exec-2] INFO  c.n.c.l.n.s.impl.StorageServiceImpl - QueryPath: app
+09:56:03.899 [http-nio-8080-exec-2] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:2, serverValue:319}] to 127.0.0.1:27017
+09:56:03.908 [http-nio-8080-exec-2] DEBUG o.s.data.mongodb.core.MongoTemplate - Dropped collection [app]
+09:56:12.297 [http-nio-8080-exec-5] INFO  c.n.c.l.n.s.impl.StorageServiceImpl - QueryPath: app.views[1]
+09:56:12.335 [http-nio-8080-exec-5] DEBUG o.s.data.mongodb.core.MongoTemplate - Calling update using query: { "id" : "2dec5a43-ad00-4506-a83f-06bdd9e07659"} and update: { "$push" : { "views" : { "$position" : 1, "$each" : [{ "children" : [], "name" : "Process10086", "refId" : { "$oid" : "62abdf3ca86d48611e421720"}}]}}} in collection: app
+09:56:12.340 [http-nio-8080-exec-5] INFO  c.n.c.l.n.r.m.i.MdbUpdateRepositoryImpl - match:1 modified:1
+11:31:50.048 [http-nio-8080-exec-6] INFO  c.n.c.l.n.s.impl.StorageServiceImpl - QueryPath: app.views[name=w333].elements[name=linear].children[name=linear_layout3]
+11:31:50.141 [http-nio-8080-exec-6] DEBUG o.s.data.mongodb.core.MongoTemplate - Executing aggregation: [{ "$match" : { "id" : "2dec5a43-ad00-4506-a83f-06bdd9e07659"}}, { "$unwind" : "$views"}, { "$replaceRoot" : { "newRoot" : "$views"}}, { "$match" : { "name" : "w333"}}] in collection app
+11:31:50.193 [http-nio-8080-exec-6] DEBUG o.s.data.mongodb.core.MongoTemplate - Calling update using query: { "_id" : { "$oid" : "62abdf33a86d48611e42171d"}} and update: { "$pull" : { "elements.$[namef4911350a9b44668a3e26a132aeafb75].children" : { "name" : "linear_layout3"}}} in collection: app
+11:31:50.196 [http-nio-8080-exec-6] INFO  c.n.c.l.n.r.m.i.MdbUpdateRepositoryImpl - match:1 modified:1
+09:58:19.079 [main] INFO  c.n.c.l.n.NaslstorageApplication - Starting NaslstorageApplication using Java 1.8.0_331 on HIH-D-20981 with PID 21260 (C:\Timer\ideaPros\chenhougen\nasl-storage-master\target\classes started by sunhaoran01 in C:\Timer\ideaPros\chenhougen\nasl-storage-master)
+09:58:19.084 [main] INFO  c.n.c.l.n.NaslstorageApplication - No active profile set, falling back to 1 default profile: "default"
+09:58:19.844 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+09:58:19.880 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 27 ms. Found 0 MongoDB repository interfaces.
+09:58:20.975 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+09:58:20.990 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+09:58:20.991 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+09:58:20.991 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.63]
+09:58:21.232 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+09:58:21.232 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2048 ms
+09:58:21.439 [main] INFO  org.mongodb.driver.cluster - Cluster created with settings {hosts=[127.0.0.1:27017], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=500}
+09:58:21.560 [cluster-ClusterId{value='62afd43df105fe66d9e17c9c', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:1, serverValue:320}] to 127.0.0.1:27017
+09:58:21.570 [cluster-ClusterId{value='62afd43df105fe66d9e17c9c', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.cluster - Monitor thread successfully connected to server with description ServerDescription{address=127.0.0.1:27017, type=STANDALONE, state=CONNECTED, ok=true, version=ServerVersion{versionList=[5, 0, 8]}, minWireVersion=0, maxWireVersion=13, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=3553900}
+09:58:22.236 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+09:58:22.258 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+09:58:22.266 [main] INFO  c.n.c.l.n.NaslstorageApplication - Started NaslstorageApplication in 3.977 seconds (JVM running for 4.682)
+11:01:51.824 [main] INFO  c.n.c.l.n.NaslstorageApplication - Starting NaslstorageApplication using Java 1.8.0_331 on HIH-D-20981 with PID 21380 (C:\Timer\ideaPros\chenhougen\nasl-storage-master\target\classes started by sunhaoran01 in C:\Timer\ideaPros\chenhougen\nasl-storage-master)
+11:01:51.827 [main] INFO  c.n.c.l.n.NaslstorageApplication - No active profile set, falling back to 1 default profile: "default"
+11:01:52.357 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+11:01:52.386 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 24 ms. Found 0 MongoDB repository interfaces.
+11:01:53.257 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+11:01:53.271 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+11:01:53.271 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+11:01:53.272 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.63]
+11:01:53.463 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+11:01:53.464 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1578 ms
+11:01:53.636 [main] INFO  org.mongodb.driver.cluster - Cluster created with settings {hosts=[127.0.0.1:27017], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=500}
+11:01:53.742 [cluster-ClusterId{value='62afe3217959da3dda306f8f', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:1, serverValue:321}] to 127.0.0.1:27017
+11:01:53.747 [cluster-ClusterId{value='62afe3217959da3dda306f8f', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.cluster - Monitor thread successfully connected to server with description ServerDescription{address=127.0.0.1:27017, type=STANDALONE, state=CONNECTED, ok=true, version=ServerVersion{versionList=[5, 0, 8]}, minWireVersion=0, maxWireVersion=13, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=3178700}
+11:01:54.336 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+11:01:54.358 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+11:01:54.367 [main] INFO  c.n.c.l.n.NaslstorageApplication - Started NaslstorageApplication in 3.182 seconds (JVM running for 3.76)
+11:02:01.334 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+11:02:01.334 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+11:02:01.335 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+11:02:01.505 [http-nio-8080-exec-1] DEBUG o.s.data.mongodb.core.MongoTemplate - Executing aggregation: [{ "$match" : { "id" : "2dec5a43-ad00-4506-a83f-06bdd9e07659"}}, { "$unwind" : "$views"}, { "$replaceRoot" : { "newRoot" : "$views"}}, { "$match" : { "name" : "w333"}}] in collection app
+11:02:01.562 [http-nio-8080-exec-1] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:2, serverValue:322}] to 127.0.0.1:27017
+11:02:01.588 [http-nio-8080-exec-1] DEBUG o.s.data.mongodb.core.MongoTemplate - Executing aggregation: [{ "$match" : { "id" : "2dec5a43-ad00-4506-a83f-06bdd9e07659"}}, { "$unwind" : "$views"}, { "$replaceRoot" : { "newRoot" : "$views"}}, { "$match" : { "name" : "w333"}}] in collection app
+11:02:01.646 [http-nio-8080-exec-1] DEBUG o.s.data.mongodb.core.MongoTemplate - find using query: { "_id" : { "$in" : [{ "$oid" : "62abdf33a86d48611e42171b"}, { "$oid" : "62abdf33a86d48611e42171c"}]}} fields: Document{{}} for class: interface java.util.Map in collection: app
+11:02:01.662 [http-nio-8080-exec-1] DEBUG o.s.data.mongodb.core.MongoTemplate - findOne using query: { "_id" : { "$oid" : "62abdf33a86d48611e42171d"}} fields: Document{{}} for class: interface java.util.Map in collection: app
+11:02:01.664 [http-nio-8080-exec-1] DEBUG o.s.data.mongodb.core.MongoTemplate - findOne using query: { "_id" : { "$oid" : "62abdf33a86d48611e42171d"}} fields: {} in db.collection: nasl_storage.app
+11:02:05.548 [http-nio-8080-exec-3] DEBUG o.s.data.mongodb.core.MongoTemplate - Executing aggregation: [{ "$match" : { "id" : "2dec5a43-ad00-4506-a83f-06bdd9e07659"}}] in collection app
+11:02:05.559 [http-nio-8080-exec-3] DEBUG o.s.data.mongodb.core.MongoTemplate - Executing aggregation: [{ "$match" : { "id" : "2dec5a43-ad00-4506-a83f-06bdd9e07659"}}] in collection app
+11:02:05.568 [http-nio-8080-exec-3] DEBUG o.s.data.mongodb.core.MongoTemplate - find using query: { "_id" : { "$in" : [{ "$oid" : "62abdf33a86d48611e42171b"}, { "$oid" : "62abdf33a86d48611e42171c"}]}} fields: Document{{}} for class: interface java.util.Map in collection: app
+11:02:05.571 [http-nio-8080-exec-3] DEBUG o.s.data.mongodb.core.MongoTemplate - find using query: { "_id" : { "$in" : [{ "$oid" : "62abdf33a86d48611e42171d"}, { "$oid" : "62abdf3ca86d48611e421720"}]}} fields: Document{{}} for class: interface java.util.Map in collection: app
+11:02:19.997 [main] INFO  c.n.c.l.n.NaslstorageApplication - Starting NaslstorageApplication using Java 1.8.0_331 on HIH-D-20981 with PID 6188 (C:\Timer\ideaPros\chenhougen\nasl-storage-master\target\classes started by sunhaoran01 in C:\Timer\ideaPros\chenhougen\nasl-storage-master)
+11:02:20.002 [main] INFO  c.n.c.l.n.NaslstorageApplication - No active profile set, falling back to 1 default profile: "default"
+11:02:20.614 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+11:02:20.644 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 24 ms. Found 0 MongoDB repository interfaces.
+11:02:21.508 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+11:02:21.523 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+11:02:21.524 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+11:02:21.524 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.63]
+11:02:21.727 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+11:02:21.728 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1663 ms
+11:02:21.937 [main] INFO  org.mongodb.driver.cluster - Cluster created with settings {hosts=[127.0.0.1:27017], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=500}
+11:02:22.049 [cluster-ClusterId{value='62afe33dcaad81038759e0fe', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:1, serverValue:323}] to 127.0.0.1:27017
+11:02:22.054 [cluster-ClusterId{value='62afe33dcaad81038759e0fe', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.cluster - Monitor thread successfully connected to server with description ServerDescription{address=127.0.0.1:27017, type=STANDALONE, state=CONNECTED, ok=true, version=ServerVersion{versionList=[5, 0, 8]}, minWireVersion=0, maxWireVersion=13, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=2863600}
+11:02:22.767 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+11:02:22.791 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+11:02:22.798 [main] INFO  c.n.c.l.n.NaslstorageApplication - Started NaslstorageApplication in 3.557 seconds (JVM running for 4.203)
+11:02:23.602 [http-nio-8080-exec-2] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+11:02:23.603 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+11:02:23.604 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+11:02:23.856 [http-nio-8080-exec-2] ERROR o.a.c.c.C.[.[.[.[dispatcherServlet] - Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed; nested exception is redis.clients.jedis.exceptions.JedisDataException: JSON Path error: path error: \n$.\n^^\n] with root cause
+redis.clients.jedis.exceptions.JedisDataException: JSON Path error: path error: \n$.\n^^\n
+	at redis.clients.jedis.Protocol.processError(Protocol.java:96)
+	at redis.clients.jedis.Protocol.process(Protocol.java:137)
+	at redis.clients.jedis.Protocol.read(Protocol.java:192)
+	at redis.clients.jedis.Connection.readProtocolWithCheckingBroken(Connection.java:316)
+	at redis.clients.jedis.Connection.getOne(Connection.java:298)
+	at redis.clients.jedis.Connection.executeCommand(Connection.java:123)
+	at redis.clients.jedis.executors.DefaultCommandExecutor.executeCommand(DefaultCommandExecutor.java:24)
+	at redis.clients.jedis.UnifiedJedis.executeCommand(UnifiedJedis.java:148)
+	at redis.clients.jedis.UnifiedJedis.jsonGet(UnifiedJedis.java:3574)
+	at com.netease.cloud.lowcode.naslstorage.repository.redis.impl.RedisAppRepositoryImpl.get(RedisAppRepositoryImpl.java:31)
+	at com.netease.cloud.lowcode.naslstorage.repository.redis.impl.RedisAppRepositoryImpl$$FastClassBySpringCGLIB$$ccd16dbc.invoke(<generated>)
+	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:793)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:763)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:137)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:763)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:708)
+	at com.netease.cloud.lowcode.naslstorage.repository.redis.impl.RedisAppRepositoryImpl$$EnhancerBySpringCGLIB$$6f7b33af.get(<generated>)
+	at com.netease.cloud.lowcode.naslstorage.service.impl.RedisStorageServiceImpl.get(RedisStorageServiceImpl.java:41)
+	at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:193)
+	at java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1384)
+	at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:482)
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:472)
+	at java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:708)
+	at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+	at java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:499)
+	at com.netease.cloud.lowcode.naslstorage.service.impl.RedisStorageServiceImpl.batchQuery(RedisStorageServiceImpl.java:37)
+	at com.netease.cloud.lowcode.naslstorage.controller.StorageController.batchQuery(StorageController.java:37)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:205)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:150)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:895)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:808)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1067)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:963)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:681)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:764)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:227)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:162)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:189)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:162)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:189)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:162)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:189)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:162)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:189)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:162)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:197)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:541)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:135)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:360)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:399)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:890)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1743)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:750)
+11:03:13.918 [main] INFO  c.n.c.l.n.NaslstorageApplication - Starting NaslstorageApplication using Java 1.8.0_331 on HIH-D-20981 with PID 14572 (C:\Timer\ideaPros\chenhougen\nasl-storage-master\target\classes started by sunhaoran01 in C:\Timer\ideaPros\chenhougen\nasl-storage-master)
+11:03:13.922 [main] INFO  c.n.c.l.n.NaslstorageApplication - No active profile set, falling back to 1 default profile: "default"
+11:03:14.546 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+11:03:14.577 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 26 ms. Found 0 MongoDB repository interfaces.
+11:03:15.451 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+11:03:15.465 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+11:03:15.466 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+11:03:15.466 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.63]
+11:03:15.662 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+11:03:15.663 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1674 ms
+11:03:15.988 [main] INFO  org.mongodb.driver.cluster - Cluster created with settings {hosts=[127.0.0.1:27017], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=500}
+11:03:16.143 [cluster-ClusterId{value='62afe373a8ac2242475c8da9', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:1, serverValue:324}] to 127.0.0.1:27017
+11:03:16.150 [cluster-ClusterId{value='62afe373a8ac2242475c8da9', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.cluster - Monitor thread successfully connected to server with description ServerDescription{address=127.0.0.1:27017, type=STANDALONE, state=CONNECTED, ok=true, version=ServerVersion{versionList=[5, 0, 8]}, minWireVersion=0, maxWireVersion=13, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=4089100}
+11:03:17.059 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+11:03:17.104 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+11:03:17.117 [main] INFO  c.n.c.l.n.NaslstorageApplication - Started NaslstorageApplication in 3.884 seconds (JVM running for 4.496)
+11:03:19.250 [http-nio-8080-exec-3] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+11:03:19.250 [http-nio-8080-exec-3] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+11:03:19.252 [http-nio-8080-exec-3] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+11:03:31.738 [http-nio-8080-exec-3] ERROR o.a.c.c.C.[.[.[.[dispatcherServlet] - Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed; nested exception is redis.clients.jedis.exceptions.JedisDataException: JSON Path error: path error: \n$.\n^^\n] with root cause
+redis.clients.jedis.exceptions.JedisDataException: JSON Path error: path error: \n$.\n^^\n
+	at redis.clients.jedis.Protocol.processError(Protocol.java:96)
+	at redis.clients.jedis.Protocol.process(Protocol.java:137)
+	at redis.clients.jedis.Protocol.read(Protocol.java:192)
+	at redis.clients.jedis.Connection.readProtocolWithCheckingBroken(Connection.java:316)
+	at redis.clients.jedis.Connection.getOne(Connection.java:298)
+	at redis.clients.jedis.Connection.executeCommand(Connection.java:123)
+	at redis.clients.jedis.executors.DefaultCommandExecutor.executeCommand(DefaultCommandExecutor.java:24)
+	at redis.clients.jedis.UnifiedJedis.executeCommand(UnifiedJedis.java:148)
+	at redis.clients.jedis.UnifiedJedis.jsonGet(UnifiedJedis.java:3574)
+	at com.netease.cloud.lowcode.naslstorage.repository.redis.impl.RedisAppRepositoryImpl.get(RedisAppRepositoryImpl.java:31)
+	at com.netease.cloud.lowcode.naslstorage.repository.redis.impl.RedisAppRepositoryImpl$$FastClassBySpringCGLIB$$ccd16dbc.invoke(<generated>)
+	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:793)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:763)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:137)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:763)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:708)
+	at com.netease.cloud.lowcode.naslstorage.repository.redis.impl.RedisAppRepositoryImpl$$EnhancerBySpringCGLIB$$db073fc0.get(<generated>)
+	at com.netease.cloud.lowcode.naslstorage.service.impl.RedisStorageServiceImpl.get(RedisStorageServiceImpl.java:41)
+	at java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:193)
+	at java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1384)
+	at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:482)
+	at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:472)
+	at java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:708)
+	at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+	at java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:499)
+	at com.netease.cloud.lowcode.naslstorage.service.impl.RedisStorageServiceImpl.batchQuery(RedisStorageServiceImpl.java:37)
+	at com.netease.cloud.lowcode.naslstorage.controller.StorageController.batchQuery(StorageController.java:37)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:205)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:150)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:895)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:808)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1067)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:963)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:681)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:764)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:227)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:162)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:189)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:162)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:189)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:162)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:189)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:162)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:117)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:189)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:162)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:197)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:97)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:541)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:135)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:78)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:360)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:399)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:890)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1743)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:750)
+11:04:08.671 [main] INFO  c.n.c.l.n.NaslstorageApplication - Starting NaslstorageApplication using Java 1.8.0_331 on HIH-D-20981 with PID 7176 (C:\Timer\ideaPros\chenhougen\nasl-storage-master\target\classes started by sunhaoran01 in C:\Timer\ideaPros\chenhougen\nasl-storage-master)
+11:04:08.675 [main] INFO  c.n.c.l.n.NaslstorageApplication - No active profile set, falling back to 1 default profile: "default"
+11:04:09.260 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+11:04:09.288 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 23 ms. Found 0 MongoDB repository interfaces.
+11:04:10.195 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+11:04:10.209 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+11:04:10.210 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+11:04:10.210 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.63]
+11:04:10.404 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+11:04:10.404 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1673 ms
+11:04:10.606 [main] INFO  org.mongodb.driver.cluster - Cluster created with settings {hosts=[127.0.0.1:27017], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=500}
+11:04:10.719 [cluster-ClusterId{value='62afe3aa1d68f63c0eb9a4a6', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.connection - Opened connection [connectionId{localValue:1, serverValue:325}] to 127.0.0.1:27017
+11:04:10.725 [cluster-ClusterId{value='62afe3aa1d68f63c0eb9a4a6', description='null'}-127.0.0.1:27017] INFO  org.mongodb.driver.cluster - Monitor thread successfully connected to server with description ServerDescription{address=127.0.0.1:27017, type=STANDALONE, state=CONNECTED, ok=true, version=ServerVersion{versionList=[5, 0, 8]}, minWireVersion=0, maxWireVersion=13, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=3840200}
+11:04:11.339 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+11:04:11.360 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+11:04:11.368 [main] INFO  c.n.c.l.n.NaslstorageApplication - Started NaslstorageApplication in 3.399 seconds (JVM running for 4.043)
+11:04:12.372 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+11:04:12.373 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+11:04:12.374 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms

@@ -28,6 +28,9 @@ public class RedisAppRepositoryImpl implements RedisAppRepository {
         JedisPooled client = JedisPoolUtils.getJedis();
         String appId = AppIdContext.get();
         String convert = JedisPathUtil.convert(jsonPath);
+        if (convert.isEmpty()) {
+            return client.jsonGet(appId);
+        }
         return client.jsonGet(appId, new Path(convert));
     }
 

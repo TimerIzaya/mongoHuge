@@ -27,6 +27,10 @@ public class Global {
     static public String PATH_TYPE_RANGE = "range";
     static public String PATH_TYPE_KV = "kv";
 
+    static public String ACTION_CREATE = "create";
+    static public String ACTION_UPDATE = "update";
+    static public String ACTION_DELETE = "delete";
+
 
     /**
      * 应用node下第一层需要拆分出去的字段

@@ -12,6 +12,7 @@ import com.netease.cloud.lowcode.naslstorage.repository.mongo.MdbUpdateRepositor
 import com.netease.cloud.lowcode.naslstorage.repository.mongo.MdbRepositoryUtil;
 import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -32,6 +33,7 @@ import java.util.*;
  * @time: 2022/6/10 14:53
  */
 
+@Slf4j
 @Repository
 public class MdbUpdateRepositoryImpl implements MdbUpdateRepository {
 
@@ -453,14 +455,12 @@ public class MdbUpdateRepositoryImpl implements MdbUpdateRepository {
             deleteSetKey += arrName;//获得最后一个path的arrName
             update.pull(deleteSetKey, new BasicDBObject("deleted", "true"));
         }
-        UpdateResult updateResult1 = mongoTemplate.updateFirst(query, update, Global.COLLECTION_NAME);
-        printUpdateResult(updateResult1);
+        UpdateResult res = mongoTemplate.updateFirst(query, update, Global.COLLECTION_NAME);
+        printUpdateResult(res);
     }
 
-
     public void printUpdateResult(UpdateResult app) {
-        System.out.println("matchCount:" + app.getMatchedCount());
-        System.out.println("modifiedCount:" + app.getModifiedCount());
+        log.info("match:" + app.getMatchedCount() + " modified:" + app.getModifiedCount());
     }
 
 }

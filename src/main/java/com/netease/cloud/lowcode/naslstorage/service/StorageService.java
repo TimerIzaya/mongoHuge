@@ -10,5 +10,5 @@ public interface StorageService {
 
     List<Object> batchQuery(List<QueryDTO> queryDTOS);
 
-    List<ApiBaseResult> batch(List<ActionDTO> actionDTOS);
+    ApiBaseResult batch(List<ActionDTO> actionDTOS);
 }

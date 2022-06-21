@@ -6,14 +6,14 @@ import java.util.Map;
 
 public interface MdbUpdateRepository {
 
-    ApiBaseResult initApp(Map<String, Object> object);
+    void initApp(Map<String, Object> object);
 
-    ApiBaseResult deleteApp(String appId);
+    void deleteApp(String appId);
 
-    ApiBaseResult update(String outerPath, String innerPath, Map<String, Object> object);
+    void update(String outerPath, String innerPath, Map<String, Object> object);
 
-    ApiBaseResult create(String outerPath, String innerPath, Map<String, Object> object);
+    void create(String outerPath, String innerPath, Map<String, Object> object);
 
-    ApiBaseResult delete(String outerPath, String innerPath);
+    void delete(String outerPath, String innerPath);
 
 }

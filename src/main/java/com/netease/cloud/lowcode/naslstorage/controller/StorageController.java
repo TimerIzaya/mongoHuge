@@ -22,7 +22,7 @@ public class StorageController {
     private StorageService storageService;
 
     @PostMapping("/batch")
-    public List<ApiBaseResult> batch(@RequestBody List<ActionDTO> actionDTOS) {
+    public ApiBaseResult batch(@RequestBody List<ActionDTO> actionDTOS) {
         return storageService.batch(actionDTOS);
     }
 

@@ -51,22 +51,15 @@ public class MdbUpdateRepositoryImpl implements MdbUpdateRepository {
     private MdbSplitQueryRepositoryImpl splitUtil;
 
     @Override
-    public ApiBaseResult initApp(Map<String, Object> object) {
-        try {
-            List<Map> saveViews = repoUtil.saveViews((List<Map>) object.get(Global.VIEWS));
-            List<Map> saveLogics = repoUtil.saveLogics((List<Map>) object.get(Global.LOGICS));
-            object.put(Global.VIEWS, saveViews);
-            object.put(Global.LOGICS, saveLogics);
-            // 前端要求增加时间戳
-            object.put(Global.TIMESTAMP, System.currentTimeMillis());
-            repoUtil.insertDocument(object);
-            return ApiBaseResult.successRet();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ApiBaseResult.errorOf(ApiErrorCode.INTERNAL_SERVER_ERROR.getStatusCode(), ApiErrorCode.INTERNAL_SERVER_ERROR.getZnMessage());
-        }
+    public void initApp(Map<String, Object> object) {
+        List<Map> saveViews = repoUtil.saveViews((List<Map>) object.get(Global.VIEWS));
+        List<Map> saveLogics = repoUtil.saveLogics((List<Map>) object.get(Global.LOGICS));
+        object.put(Global.VIEWS, saveViews);
+        object.put(Global.LOGICS, saveLogics);
+        // 前端要求增加时间戳
+        object.put(Global.TIMESTAMP, System.currentTimeMillis());
+        repoUtil.insertDocument(object);
     }
-
 
 
     /**
@@ -74,35 +67,23 @@ public class MdbUpdateRepositoryImpl implements MdbUpdateRepository {
      * @return:
      */
     @Override
-    public ApiBaseResult create(String outerPath, String innerPath, Map<String, Object> object) {
+    public void create(String outerPath, String innerPath, Map<String, Object> object) {
         String appId = AppIdContext.get();
         // 前端要求增加时间戳
         object.put(Global.TIMESTAMP, System.currentTimeMillis());
-        try {
-            if (outerPath.isEmpty()) {
-                createWhenOuterEmpty(appId, innerPath, object);
-            } else if (!innerPath.isEmpty()) {
-                createWhenInnerExist(outerPath, innerPath, object);
-            } else {
-                createWhenInnerEmpty(appId, outerPath, object);
-            }
-            return ApiBaseResult.successRet();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ApiBaseResult.errorOf(ApiErrorCode.INTERNAL_SERVER_ERROR.getStatusCode(), ApiErrorCode.INTERNAL_SERVER_ERROR.getZnMessage());
+        if (outerPath.isEmpty()) {
+            createWhenOuterEmpty(appId, innerPath, object);
+        } else if (!innerPath.isEmpty()) {
+            createWhenInnerExist(outerPath, innerPath, object);
+        } else {
+            createWhenInnerEmpty(appId, outerPath, object);
         }
     }
 
 
     @Override
-    public ApiBaseResult deleteApp(String appId) {
-        try {
-            mongoTemplate.dropCollection(Global.APP);
-            return ApiBaseResult.successRet();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ApiBaseResult.errorOf(ApiErrorCode.INTERNAL_SERVER_ERROR.getStatusCode(), ApiErrorCode.INTERNAL_SERVER_ERROR.getZnMessage());
-        }
+    public void deleteApp(String appId) {
+        mongoTemplate.dropCollection(Global.APP);
     }
 
 
@@ -110,21 +91,16 @@ public class MdbUpdateRepositoryImpl implements MdbUpdateRepository {
      * 更新对象的字段
      */
     @Override
-    public ApiBaseResult update(String outerPath, String innerPath, Map<String, Object> object) {
+    public void update(String outerPath, String innerPath, Map<String, Object> object) {
         String appId = AppIdContext.get();
         // 前端要求增加时间戳
         object.put(Global.TIMESTAMP, System.currentTimeMillis());
-        try {
-            if (outerPath.isEmpty()) {
-                updateWhenOuterEmpty(appId, innerPath, object);
-            } else if (!innerPath.isEmpty()) {
-                updateWhenInnerExist(outerPath, innerPath, object);
-            } else {
-                updateWhenInnerEmpty(appId, outerPath, object);
-            }
-            return ApiBaseResult.successRet();
-        } catch (Exception e) {
-            return ApiBaseResult.errorOf(ApiErrorCode.INTERNAL_SERVER_ERROR.getStatusCode(), ApiErrorCode.INTERNAL_SERVER_ERROR.getZnMessage());
+        if (outerPath.isEmpty()) {
+            updateWhenOuterEmpty(appId, innerPath, object);
+        } else if (!innerPath.isEmpty()) {
+            updateWhenInnerExist(outerPath, innerPath, object);
+        } else {
+            updateWhenInnerEmpty(appId, outerPath, object);
         }
     }
 
@@ -132,20 +108,14 @@ public class MdbUpdateRepositoryImpl implements MdbUpdateRepository {
      * 删除对象或字段
      */
     @Override
-    public ApiBaseResult delete(String outerPath, String innerPath) {
+    public void delete(String outerPath, String innerPath) {
         String appId = AppIdContext.get();
-        try {
-            if (outerPath.isEmpty()) {
-                deleteWhenOuterEmpty(appId, outerPath);
-            } else if (!innerPath.isEmpty()) {
-                deleteWhenInnerExist(appId, outerPath, innerPath);
-            } else {
-                deleteWhenInnerEmpty(appId, outerPath);
-            }
-            return ApiBaseResult.successRet();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ApiBaseResult.errorOf(ApiErrorCode.INTERNAL_SERVER_ERROR.getStatusCode(), ApiErrorCode.INTERNAL_SERVER_ERROR.getZnMessage());
+        if (outerPath.isEmpty()) {
+            deleteWhenOuterEmpty(appId, outerPath);
+        } else if (!innerPath.isEmpty()) {
+            deleteWhenInnerExist(appId, outerPath, innerPath);
+        } else {
+            deleteWhenInnerEmpty(appId, outerPath);
         }
     }
 

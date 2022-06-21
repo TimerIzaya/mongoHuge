@@ -70,10 +70,12 @@ public class MdbSplitQueryRepositoryImpl {
                 List<Map> logicsMap = (List<Map>) tmp.get(Consts.NEED_SPLIT_DOC_LOGICS);
                 if (!CollectionUtils.isEmpty(viewsMap)) {
                     tmp.put(Consts.NEED_SPLIT_DOC_VIEWS, querySubDoc(viewsMap));
-                } else if (!CollectionUtils.isEmpty(childrenMap)) {
-                    tmp.put(Consts.NEED_SPLIT_DOC_CHILDREN, querySubDoc(childrenMap));
-                } else if (!CollectionUtils.isEmpty(logicsMap)) {
+                }
+                if (!CollectionUtils.isEmpty(logicsMap)) {
                     tmp.put(Consts.NEED_SPLIT_DOC_LOGICS, querySubDoc(logicsMap));
+                }
+                if (!CollectionUtils.isEmpty(childrenMap)) {
+                    tmp.put(Consts.NEED_SPLIT_DOC_CHILDREN, querySubDoc(childrenMap));
                 }
             }
         }

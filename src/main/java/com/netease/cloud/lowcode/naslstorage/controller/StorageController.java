@@ -1,5 +1,6 @@
 package com.netease.cloud.lowcode.naslstorage.controller;
 
+import com.netease.cloud.lowcode.naslstorage.common.ApiBaseResult;
 import com.netease.cloud.lowcode.naslstorage.service.StorageService;
 import com.netease.cloud.lowcode.naslstorage.dto.ActionDTO;
 import com.netease.cloud.lowcode.naslstorage.dto.QueryDTO;
@@ -17,16 +18,12 @@ import java.util.List;
 @RequestMapping("/api/storage")
 public class StorageController {
 
-    @Resource(name = "redisService")
-//    @Resource(name = "mongoService")
+    @Resource
     private StorageService storageService;
 
     @PostMapping("/batch")
-    public void batch(@RequestBody List<ActionDTO> actionDTOS) {
-        if (CollectionUtils.isEmpty(actionDTOS)) {
-            return;
-        }
-        storageService.batch(actionDTOS);
+    public List<ApiBaseResult> batch(@RequestBody List<ActionDTO> actionDTOS) {
+        return storageService.batch(actionDTOS);
     }
 
     @PostMapping("/batchQuery")

@@ -1,10 +1,10 @@
-package com.netease.cloud.lowcode.naslstorage.repository.mongo.impl;
+package com.netease.cloud.lowcode.naslstorage.repository.impl;
 
 import com.netease.cloud.lowcode.naslstorage.common.Global;
 import com.netease.cloud.lowcode.naslstorage.context.AppIdContext;
 import com.netease.cloud.lowcode.naslstorage.context.RepositoryOperationContext;
 import com.netease.cloud.lowcode.naslstorage.entity.LocationDocument;
-import com.netease.cloud.lowcode.naslstorage.repository.mongo.MdbQueryRepository;
+import com.netease.cloud.lowcode.naslstorage.repository.MdbQueryRepository;
 import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
 import org.bson.types.ObjectId;

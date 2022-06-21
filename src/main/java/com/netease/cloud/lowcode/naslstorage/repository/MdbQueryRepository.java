@@ -1,4 +1,4 @@
-package com.netease.cloud.lowcode.naslstorage.repository.mongo;
+package com.netease.cloud.lowcode.naslstorage.repository;
 
 import com.netease.cloud.lowcode.naslstorage.context.RepositoryOperationContext;
 

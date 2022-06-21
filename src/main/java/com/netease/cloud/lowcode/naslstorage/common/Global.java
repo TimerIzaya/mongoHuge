@@ -31,6 +31,8 @@ public class Global {
     static public String ACTION_UPDATE = "update";
     static public String ACTION_DELETE = "delete";
 
+    static public String TIMESTAMP = "timestamp";
+
 
     /**
      * 应用node下第一层需要拆分出去的字段

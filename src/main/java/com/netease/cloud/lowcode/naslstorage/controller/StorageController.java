@@ -1,7 +1,7 @@
 package com.netease.cloud.lowcode.naslstorage.controller;
 
+import com.netease.cloud.lowcode.naslstorage.backend.BackendStore;
 import com.netease.cloud.lowcode.naslstorage.common.ApiBaseResult;
-import com.netease.cloud.lowcode.naslstorage.service.StorageService;
 import com.netease.cloud.lowcode.naslstorage.dto.ActionDTO;
 import com.netease.cloud.lowcode.naslstorage.dto.QueryDTO;
 import org.springframework.util.CollectionUtils;
@@ -19,11 +19,11 @@ import java.util.List;
 public class StorageController {
 
     @Resource
-    private StorageService storageService;
+    private BackendStore backendStore;
 
     @PostMapping("/batch")
     public ApiBaseResult batch(@RequestBody List<ActionDTO> actionDTOS) {
-        return storageService.batch(actionDTOS);
+        return backendStore.batchAction(actionDTOS);
     }
 
     @PostMapping("/batchQuery")
@@ -31,6 +31,6 @@ public class StorageController {
         if (CollectionUtils.isEmpty(queryDTOS)) {
             return new ArrayList<>();
         }
-        return storageService.batchQuery(queryDTOS);
+        return backendStore.batchQuery(queryDTOS);
     }
 }

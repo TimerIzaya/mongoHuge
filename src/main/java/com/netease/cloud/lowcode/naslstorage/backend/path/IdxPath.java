@@ -1,4 +1,4 @@
-package com.netease.cloud.lowcode.naslstorage.entity.path;
+package com.netease.cloud.lowcode.naslstorage.backend.path;
 
 
 import lombok.Data;
@@ -10,7 +10,7 @@ import java.util.Map;
  * partPath中的idx类型，比如 modules[1]
  */
 @Data
-public class IdxPath implements PartPath<Integer> {
+public class IdxPath implements SegmentPath<Integer> {
 
     String arrName;
 

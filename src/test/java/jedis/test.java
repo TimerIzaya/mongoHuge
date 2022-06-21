@@ -1,11 +1,6 @@
 package jedis;
 
-import com.netease.cloud.lowcode.naslstorage.util.JedisPoolUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPooled;
-import redis.clients.jedis.json.Path;
 
 /**
  * @description:

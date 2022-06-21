@@ -1,12 +1,9 @@
-package com.netease.cloud.lowcode.naslstorage.repository.impl;
+package com.netease.cloud.lowcode.naslstorage.backend.mongo;
 
-import com.netease.cloud.lowcode.naslstorage.common.Global;
-import com.netease.cloud.lowcode.naslstorage.context.AppIdContext;
-import com.netease.cloud.lowcode.naslstorage.context.RepositoryOperationContext;
-import com.netease.cloud.lowcode.naslstorage.entity.LocationDocument;
-import com.netease.cloud.lowcode.naslstorage.repository.MdbQueryRepository;
-import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
-import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
+import com.netease.cloud.lowcode.naslstorage.common.Consts;
+import com.netease.cloud.lowcode.naslstorage.interceptor.AppIdContext;
+import com.netease.cloud.lowcode.naslstorage.backend.JsonPathSchema;
+import com.netease.cloud.lowcode.naslstorage.backend.PathConverter;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -26,10 +23,10 @@ import java.util.stream.Collectors;
  * @author pingerchen
  */
 @Service("splitMdbAppRepositoryImpl")
-public class MdbSplitQueryRepositoryImpl implements MdbQueryRepository {
+public class MdbSplitQueryRepositoryImpl {
 
-    @Resource(name = "mdbAppRepositoryImpl")
-    private MdbQueryRepository mdbQueryRepository;
+    @Resource
+    private MdbQueryRepositoryImpl mdbQueryRepository;
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -37,7 +34,6 @@ public class MdbSplitQueryRepositoryImpl implements MdbQueryRepository {
     @Resource
     private PathConverter<List<JsonPathSchema>> pathConverter;
 
-    @Override
     public Object get(RepositoryOperationContext context, String jsonPath, List<String> excludes) {
         List<JsonPathSchema> pathSchemas = pathConverter.convert(jsonPath);
         // 路径上views.(children)+ 或logics在应用文档查询，其他的子path 需要定位到相应的关联文档操作
@@ -65,19 +61,19 @@ public class MdbSplitQueryRepositoryImpl implements MdbQueryRepository {
             mongoResult = querySubDoc((List<Map>) mongoResult);
         } else if (mongoResult instanceof Map) {
             Map tmp = (Map) mongoResult;
-            if (!ObjectUtils.isEmpty(tmp.get(Global.REFERENCE_OBJECT_ID))) {
+            if (!ObjectUtils.isEmpty(tmp.get(Consts.REFERENCE_OBJECT_ID))) {
                 // 本层有引用node，需要填充
                 mongoResult = querySubDoc(tmp, excludes);
             } else {
-                List<Map> viewsMap = (List<Map>) tmp.get(Global.NEED_SPLIT_DOC_VIEWS);
-                List<Map> childrenMap = (List<Map>) tmp.get(Global.NEED_SPLIT_DOC_CHILDREN);
-                List<Map> logicsMap = (List<Map>) tmp.get(Global.NEED_SPLIT_DOC_LOGICS);
+                List<Map> viewsMap = (List<Map>) tmp.get(Consts.NEED_SPLIT_DOC_VIEWS);
+                List<Map> childrenMap = (List<Map>) tmp.get(Consts.NEED_SPLIT_DOC_CHILDREN);
+                List<Map> logicsMap = (List<Map>) tmp.get(Consts.NEED_SPLIT_DOC_LOGICS);
                 if (!CollectionUtils.isEmpty(viewsMap)) {
-                    tmp.put(Global.NEED_SPLIT_DOC_VIEWS, querySubDoc(viewsMap));
+                    tmp.put(Consts.NEED_SPLIT_DOC_VIEWS, querySubDoc(viewsMap));
                 } else if (!CollectionUtils.isEmpty(childrenMap)) {
-                    tmp.put(Global.NEED_SPLIT_DOC_CHILDREN, querySubDoc(childrenMap));
+                    tmp.put(Consts.NEED_SPLIT_DOC_CHILDREN, querySubDoc(childrenMap));
                 } else if (!CollectionUtils.isEmpty(logicsMap)) {
-                    tmp.put(Global.NEED_SPLIT_DOC_LOGICS, querySubDoc(logicsMap));
+                    tmp.put(Consts.NEED_SPLIT_DOC_LOGICS, querySubDoc(logicsMap));
                 }
             }
         }
@@ -93,12 +89,12 @@ public class MdbSplitQueryRepositoryImpl implements MdbQueryRepository {
         List<ObjectId> objectIds = new ArrayList<>();
         Map<ObjectId, List<Map>> childrenMap = new HashMap<>();
         for (Map view : doc) {
-            List<Map> children = (List<Map>) view.get(Global.NEED_SPLIT_DOC_CHILDREN);
+            List<Map> children = (List<Map>) view.get(Consts.NEED_SPLIT_DOC_CHILDREN);
             List<Map> cret = new ArrayList<>();
             if (!CollectionUtils.isEmpty(children)) {
                 cret = querySubDoc(children);
             }
-            ObjectId objectId = (ObjectId) view.get(Global.REFERENCE_OBJECT_ID);
+            ObjectId objectId = (ObjectId) view.get(Consts.REFERENCE_OBJECT_ID);
             if (!ObjectUtils.isEmpty(objectId)) {
                 childrenMap.put(objectId, cret);
                 objectIds.add(objectId);
@@ -107,11 +103,11 @@ public class MdbSplitQueryRepositoryImpl implements MdbQueryRepository {
             }
         }
         if (!CollectionUtils.isEmpty(objectIds)) {
-            Query query = Query.query(Criteria.where(Global.OBJECT_ID).in(objectIds));
-            List<Map> refRet = mongoTemplate.find(query, Map.class, Global.COLLECTION_NAME);
+            Query query = Query.query(Criteria.where(Consts.OBJECT_ID).in(objectIds));
+            List<Map> refRet = mongoTemplate.find(query, Map.class, Consts.COLLECTION_NAME);
             refRet.stream().forEach(v -> {
-                if (!CollectionUtils.isEmpty(childrenMap.get(v.get(Global.OBJECT_ID)))) {
-                    v.put(Global.NEED_SPLIT_DOC_CHILDREN, childrenMap.get(v.get(Global.OBJECT_ID)));
+                if (!CollectionUtils.isEmpty(childrenMap.get(v.get(Consts.OBJECT_ID)))) {
+                    v.put(Consts.NEED_SPLIT_DOC_CHILDREN, childrenMap.get(v.get(Consts.OBJECT_ID)));
                 }
                 ret.add(v);
             });
@@ -120,22 +116,22 @@ public class MdbSplitQueryRepositoryImpl implements MdbQueryRepository {
     }
 
     private Map querySubDoc(Map c, List<String> excludes) {
-        List<Map> children = (List<Map>) c.get(Global.NEED_SPLIT_DOC_CHILDREN);
+        List<Map> children = (List<Map>) c.get(Consts.NEED_SPLIT_DOC_CHILDREN);
         List<Map> cret = new ArrayList<>();
         if (!CollectionUtils.isEmpty(children)) {
             cret = querySubDoc(children);
         }
-        ObjectId objectId = (ObjectId) c.get(Global.REFERENCE_OBJECT_ID);
-        Query query = Query.query(Criteria.where(Global.OBJECT_ID).is(objectId));
+        ObjectId objectId = (ObjectId) c.get(Consts.REFERENCE_OBJECT_ID);
+        Query query = Query.query(Criteria.where(Consts.OBJECT_ID).is(objectId));
         Field field = query.fields();
         if (!CollectionUtils.isEmpty(excludes)) {
             for (String exclude : excludes) {
                 field.exclude(exclude);
             }
         }
-        Map ret = mongoTemplate.findOne(query, Map.class, Global.COLLECTION_NAME);
+        Map ret = mongoTemplate.findOne(query, Map.class, Consts.COLLECTION_NAME);
         if (!CollectionUtils.isEmpty(children)) {
-            ret.put(Global.NEED_SPLIT_DOC_CHILDREN, cret);
+            ret.put(Consts.NEED_SPLIT_DOC_CHILDREN, cret);
         }
         return ret;
     }
@@ -148,8 +144,8 @@ public class MdbSplitQueryRepositoryImpl implements MdbQueryRepository {
         for (int i = 0; i < pathSchemas.size(); i++) {
             lastIndex = i;
             // views 下的logics 并不拆分文档
-            notSplitProperty = i == 1 ? !Global.NEED_SPLIT_FIRST_PROPERTY_IN_APP_DOC.contains(pathSchemas.get(i).getPath()) : notSplitProperty;
-            splitButInAppDoc = i >= 2 ? pathSchemas.get(i).getPath().equalsIgnoreCase(Global.NEED_SPLIT_DOC_CHILDREN) : splitButInAppDoc;
+            notSplitProperty = i == 1 ? !Consts.NEED_SPLIT_FIRST_PROPERTY_IN_APP_DOC.contains(pathSchemas.get(i).getPath()) : notSplitProperty;
+            splitButInAppDoc = i >= 2 ? pathSchemas.get(i).getPath().equalsIgnoreCase(Consts.NEED_SPLIT_DOC_CHILDREN) : splitButInAppDoc;
             if (!notSplitProperty && !splitButInAppDoc) {
                 needSplit = true;
                 break;
@@ -169,9 +165,9 @@ public class MdbSplitQueryRepositoryImpl implements MdbQueryRepository {
         }
         Object appRet = mdbQueryRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), pathConverter.reverseConvert(queryPath), new ArrayList<>());
         if (appRet instanceof Collection) {
-            ((Collection<?>) appRet).stream().forEach(v -> objectIds.add((ObjectId) ((Map) v).get(Global.REFERENCE_OBJECT_ID)));
+            ((Collection<?>) appRet).stream().forEach(v -> objectIds.add((ObjectId) ((Map) v).get(Consts.REFERENCE_OBJECT_ID)));
         } else {
-            objectIds.add((ObjectId) ((Map) appRet).get(Global.REFERENCE_OBJECT_ID));
+            objectIds.add((ObjectId) ((Map) appRet).get(Consts.REFERENCE_OBJECT_ID));
         }
         List<ObjectId> objectIdRet = objectIds.stream().filter(v->v!=null).collect(Collectors.toList());
         locationDocument.setOutJsonPath(pathConverter.reverseConvert(queryPath));

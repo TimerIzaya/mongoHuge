@@ -1,8 +1,8 @@
-package com.netease.cloud.lowcode.naslstorage.entity.path;
+package com.netease.cloud.lowcode.naslstorage.backend.path;
 
 import java.util.Map;
 
-public interface PartPath<T> {
+public interface SegmentPath<T> {
 
     String getType();
 

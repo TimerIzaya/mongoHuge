@@ -9,7 +9,7 @@ import java.util.List;
  * @time: 2022/6/10 16:44
  */
 
-public class Global {
+public class Consts {
     static public String APP = "app";
     static public String COLLECTION_NAME = APP;
     static public String APP_ID = "id";

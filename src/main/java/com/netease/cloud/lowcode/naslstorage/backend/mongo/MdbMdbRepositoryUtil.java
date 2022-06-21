@@ -1,8 +1,7 @@
-package com.netease.cloud.lowcode.naslstorage.repository.impl;
+package com.netease.cloud.lowcode.naslstorage.backend.mongo;
 
-import com.netease.cloud.lowcode.naslstorage.common.Global;
-import com.netease.cloud.lowcode.naslstorage.entity.path.*;
-import com.netease.cloud.lowcode.naslstorage.repository.MdbRepositoryUtil;
+import com.netease.cloud.lowcode.naslstorage.common.Consts;
+import com.netease.cloud.lowcode.naslstorage.backend.path.*;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -15,31 +14,29 @@ import javax.annotation.Resource;
 import java.util.*;
 
 @Repository
-public class MdbMdbRepositoryUtil implements MdbRepositoryUtil {
+public class MdbMdbRepositoryUtil {
 
     @Resource
     private MongoTemplate mongoTemplate;
 
-    @Override
     public Map saveView(Map v) {
-        List<Map> children = (List<Map>) v.get(Global.CHILDREN);
+        List<Map> children = (List<Map>) v.get(Consts.CHILDREN);
         List<Map> childIds = new ArrayList<>();
         if (children != null) {
             for (Map child : children) {
                 childIds.add(saveView(child));
             }
         }
-        v.put(Global.CHILDREN, childIds);
+        v.put(Consts.CHILDREN, childIds);
         ObjectId objectId = insertDocument(v);
 
         Map<String, Object> retId = new HashMap();
-        retId.put(Global.REFERENCE_OBJECT_ID, objectId);
+        retId.put(Consts.REFERENCE_OBJECT_ID, objectId);
         retId.put("name", v.get("name"));
-        retId.put(Global.CHILDREN, v.get(Global.CHILDREN));
+        retId.put(Consts.CHILDREN, v.get(Consts.CHILDREN));
         return retId;
     }
 
-    @Override
     public List<Map> saveViews(List<Map> viewList) {
         List<Map> retIds = new ArrayList<>();
         for (Map view : viewList) {
@@ -48,16 +45,14 @@ public class MdbMdbRepositoryUtil implements MdbRepositoryUtil {
         return retIds;
     }
 
-    @Override
     public Map saveLogic(Map logic) {
         ObjectId objectId = insertDocument(logic);
         Map newLogic = new HashMap();
-        newLogic.put(Global.REFERENCE_OBJECT_ID, objectId);
+        newLogic.put(Consts.REFERENCE_OBJECT_ID, objectId);
         newLogic.put("name", logic.get("name"));
         return newLogic;
     }
 
-    @Override
     public List<Map> saveLogics(List<Map> logicList) {
         List<Map> newLogicList = new ArrayList<>();
         logicList.forEach(logic -> {
@@ -66,59 +61,53 @@ public class MdbMdbRepositoryUtil implements MdbRepositoryUtil {
         return newLogicList;
     }
 
-    @Override
     public void deleteView(Map v) {
-        List<Map> children = (List<Map>) v.get(Global.CHILDREN);
+        List<Map> children = (List<Map>) v.get(Consts.CHILDREN);
         if (children != null) {
             for (Map child : children) {
                 deleteView(child);
             }
         }
         ObjectId id;
-        if (v.containsKey(Global.REFERENCE_OBJECT_ID)) {
-            id = (ObjectId) v.get(Global.REFERENCE_OBJECT_ID);
+        if (v.containsKey(Consts.REFERENCE_OBJECT_ID)) {
+            id = (ObjectId) v.get(Consts.REFERENCE_OBJECT_ID);
         } else {
-            id = (ObjectId) v.get(Global.OBJECT_ID);
+            id = (ObjectId) v.get(Consts.OBJECT_ID);
         }
-        removeDocument(id, Global.APP);
+        removeDocument(id, Consts.APP);
     }
 
-    @Override
     public void deleteViews(List<Map> views) {
         for (Map view : views) {
             deleteView(view);
         }
     }
 
-    @Override
     public void deleteLogic(Map logic) {
         ObjectId objectId;
-        if (logic.containsKey(Global.REFERENCE_OBJECT_ID)) {
-            objectId = (ObjectId) logic.get(Global.REFERENCE_OBJECT_ID);
+        if (logic.containsKey(Consts.REFERENCE_OBJECT_ID)) {
+            objectId = (ObjectId) logic.get(Consts.REFERENCE_OBJECT_ID);
         } else {
-            objectId = (ObjectId) logic.get(Global.OBJECT_ID);
+            objectId = (ObjectId) logic.get(Consts.OBJECT_ID);
         }
-        removeDocument(objectId, Global.APP);
+        removeDocument(objectId, Consts.APP);
     }
 
-    @Override
     public void deleteLogics(List<Map> logics) {
         for (Map logic : logics) {
             deleteLogic(logic);
         }
     }
 
-    @Override
     public ObjectId insertDocument(Map o) {
         Document d = new Document(o);
-        mongoTemplate.getCollection(Global.APP).insertOne(d);
-        return d.getObjectId(Global.OBJECT_ID);
+        mongoTemplate.getCollection(Consts.APP).insertOne(d);
+        return d.getObjectId(Consts.OBJECT_ID);
     }
 
-    @Override
     public void removeDocument(ObjectId objectId, String collectionName) {
         Query query = new Query();
-        query.addCriteria(Criteria.where(Global.OBJECT_ID).is(objectId));
+        query.addCriteria(Criteria.where(Consts.OBJECT_ID).is(objectId));
         mongoTemplate.remove(query, collectionName);
     }
 
@@ -128,7 +117,7 @@ public class MdbMdbRepositoryUtil implements MdbRepositoryUtil {
      * 返回setKey列表，因为切片语法可能产生多个setKey
      * 注意！！！ 拼接setKey的同时给update添加了arrayFilter
      */
-    public List<String> getSetKeys(List<PartPath> paths, int size, Update update) {
+    public List<String> getSetKeys(List<SegmentPath> paths, int size, Update update) {
         if (paths.size() == 0) {
             List<String> setKeys = new ArrayList<>();
             setKeys.add("");
@@ -138,9 +127,9 @@ public class MdbMdbRepositoryUtil implements MdbRepositoryUtil {
         List<StringBuilder> setKeys = new ArrayList<>();
         setKeys.add(new StringBuilder());
         for (int i = 0; i < size; i++) {
-            PartPath partPath = paths.get(i);
-            if (partPath.getType().equals(Global.PATH_TYPE_KV)) {
-                KvPath kvPath = (KvPath) partPath;
+            SegmentPath segmentPath = paths.get(i);
+            if (segmentPath.getType().equals(Consts.PATH_TYPE_KV)) {
+                KvPath kvPath = (KvPath) segmentPath;
                 String arrName = kvPath.getArrName();
                 String key = kvPath.getKey();
                 String value = kvPath.getValue();
@@ -150,15 +139,15 @@ public class MdbMdbRepositoryUtil implements MdbRepositoryUtil {
                     setKey.append(arrName).append(".$[").append(var).append("]");
                 }
                 update.filterArray(Criteria.where(var + "." + key).is(value));
-            } else if (partPath.getType().equals(Global.PATH_TYPE_IDX)) {
-                IdxPath idxPath = (IdxPath) partPath;
+            } else if (segmentPath.getType().equals(Consts.PATH_TYPE_IDX)) {
+                IdxPath idxPath = (IdxPath) segmentPath;
                 String arrName = idxPath.getArrName();
                 int idx = idxPath.getIdx();
                 for (StringBuilder setKey : setKeys) {
                     setKey.append(arrName).append(".").append(idx);
                 }
-            } else if (partPath.getType().equals(Global.PATH_TYPE_RANGE)) {
-                RangePath rangePath = (RangePath) partPath;
+            } else if (segmentPath.getType().equals(Consts.PATH_TYPE_RANGE)) {
+                RangePath rangePath = (RangePath) segmentPath;
                 int start = rangePath.getStart();
                 int end = rangePath.getEnd();
                 // 相当于给每个setKey都增加一次IdxPath
@@ -172,7 +161,7 @@ public class MdbMdbRepositoryUtil implements MdbRepositoryUtil {
                 }
                 setKeys = newSetKeys;
             } else {
-                FieldPath endPath = (FieldPath) partPath;
+                FieldPath endPath = (FieldPath) segmentPath;
                 String value = endPath.getValue();
                 for (StringBuilder setKey : setKeys) {
                     setKey.append(value);
@@ -194,6 +183,5 @@ public class MdbMdbRepositoryUtil implements MdbRepositoryUtil {
         });
         return ret;
     }
-
 
 }

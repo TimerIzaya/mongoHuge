@@ -1,21 +1,18 @@
-package com.netease.cloud.lowcode.naslstorage.service.impl;
+package com.netease.cloud.lowcode.naslstorage.backend.mongo;
 
 import com.netease.cloud.lowcode.naslstorage.common.ApiBaseResult;
 import com.netease.cloud.lowcode.naslstorage.common.ApiErrorCode;
-import com.netease.cloud.lowcode.naslstorage.common.Global;
+import com.netease.cloud.lowcode.naslstorage.common.Consts;
 import com.netease.cloud.lowcode.naslstorage.dto.ActionDTO;
 import com.netease.cloud.lowcode.naslstorage.dto.QueryDTO;
-import com.netease.cloud.lowcode.naslstorage.repository.MdbUpdateRepository;
-import com.netease.cloud.lowcode.naslstorage.repository.impl.MdbSplitQueryRepositoryImpl;
-import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
-import com.netease.cloud.lowcode.naslstorage.service.StorageService;
+import com.netease.cloud.lowcode.naslstorage.backend.PathConverter;
+import com.netease.cloud.lowcode.naslstorage.backend.BackendStore;
 import com.netease.cloud.lowcode.naslstorage.util.PathUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -25,8 +22,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Service
-public class StorageServiceImpl implements StorageService {
+@Service("mongoService")
+public class MdbStore implements BackendStore {
 
     @Resource(name = "splitMdbAppRepositoryImpl")
     private MdbSplitQueryRepositoryImpl appQueryRepository;
@@ -62,7 +59,7 @@ public class StorageServiceImpl implements StorageService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiBaseResult batch(List<ActionDTO> actionDTOS) {
+    public ApiBaseResult batchAction(List<ActionDTO> actionDTOS) {
         try {
             actionDTOS.forEach(this::solve);
             return ApiBaseResult.successRet();
@@ -78,24 +75,24 @@ public class StorageServiceImpl implements StorageService {
         log.info("QueryPath: " + rawPath);
         Map<String, Object> object = actionDTO.getObject();
         // path为app则初始化app或者删除app
-        if (Global.APP.equals(rawPath)) {
-            if (Global.ACTION_CREATE.equals(action)) {
+        if (Consts.APP.equals(rawPath)) {
+            if (Consts.ACTION_CREATE.equals(action)) {
                 // 如果存在先删除再生成，否则不会覆盖
-                mdbUpdateRepository.deleteApp(Global.APP);
+                mdbUpdateRepository.deleteApp(Consts.APP);
                 mdbUpdateRepository.initApp(actionDTO.getObject());
                 return;
-            } else if (Global.ACTION_DELETE.equals(action)) {
-                mdbUpdateRepository.deleteApp(Global.APP);
+            } else if (Consts.ACTION_DELETE.equals(action)) {
+                mdbUpdateRepository.deleteApp(Consts.APP);
                 return;
             }
         }
 
         String[] splits = PathUtil.splitJsonPath(rawPath);
-        if (Global.ACTION_CREATE.equals(action)) {
+        if (Consts.ACTION_CREATE.equals(action)) {
             mdbUpdateRepository.create(splits[0], splits[1], object);
-        } else if (Global.ACTION_UPDATE.equals(action)) {
+        } else if (Consts.ACTION_UPDATE.equals(action)) {
             mdbUpdateRepository.update(splits[0], splits[1], object);
-        } else if (Global.ACTION_DELETE.equals(action)) {
+        } else if (Consts.ACTION_DELETE.equals(action)) {
             mdbUpdateRepository.delete(splits[0], splits[1]);
         }
     }

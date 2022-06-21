@@ -1,10 +1,8 @@
-package com.netease.cloud.lowcode.naslstorage.repository.impl;
+package com.netease.cloud.lowcode.naslstorage.backend.mongo;
 
-import com.netease.cloud.lowcode.naslstorage.common.Global;
-import com.netease.cloud.lowcode.naslstorage.context.RepositoryOperationContext;
-import com.netease.cloud.lowcode.naslstorage.repository.MdbQueryRepository;
-import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
-import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
+import com.netease.cloud.lowcode.naslstorage.common.Consts;
+import com.netease.cloud.lowcode.naslstorage.backend.JsonPathSchema;
+import com.netease.cloud.lowcode.naslstorage.backend.PathConverter;
 import lombok.SneakyThrows;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
@@ -20,7 +18,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 @Service("mdbAppRepositoryImpl")
-public class MdbQueryRepositoryImpl implements MdbQueryRepository {
+public class MdbQueryRepositoryImpl {
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -28,7 +26,6 @@ public class MdbQueryRepositoryImpl implements MdbQueryRepository {
     private PathConverter<List<JsonPathSchema>> pathConverter;
 
     @SneakyThrows
-    @Override
     public Object get(RepositoryOperationContext context, String jsonPath, List<String> excludes) {
         List<JsonPathSchema> paths = pathConverter.convert(jsonPath);
         List<AggregationOperation> aggregationOperations = new ArrayList<>();
@@ -36,7 +33,7 @@ public class MdbQueryRepositoryImpl implements MdbQueryRepository {
          * 文档过滤
          */
         if (!CollectionUtils.isEmpty(context.getObjectIds())) {
-            aggregationOperations.add(Aggregation.match(Criteria.where(Global.OBJECT_ID).in(context.getObjectIds())));
+            aggregationOperations.add(Aggregation.match(Criteria.where(Consts.OBJECT_ID).in(context.getObjectIds())));
         }
         String lastPathWithoutParam = null;
         for (int i = 0; i < paths.size(); i++) {
@@ -50,9 +47,9 @@ public class MdbQueryRepositoryImpl implements MdbQueryRepository {
                 // key 和value 都不为空
                 aggregationOperations.add(Aggregation.match(Criteria.where(path.getKey()).is(path.getValue())));
             } else {
-                if (Global.APP.equalsIgnoreCase(path.getPath())) {
+                if (Consts.APP.equalsIgnoreCase(path.getPath())) {
                     // 应用过滤信息不在path 中，是通过header 传入的
-                    aggregationOperations.add(Aggregation.match(Criteria.where(Global.APP_ID).is(context.getAppId())));
+                    aggregationOperations.add(Aggregation.match(Criteria.where(Consts.APP_ID).is(context.getAppId())));
                 }
             }
             if (i < paths.size() - 1) {
@@ -70,7 +67,7 @@ public class MdbQueryRepositoryImpl implements MdbQueryRepository {
             } else {
                 // key、value 都为null，这种情况是路径上没有搜索条件, 通常是JsonObject 里选取字段。只有在最后一段path 中可能为数组，中间不带搜索条件的不能是数组。
                 // mongodb 限制：非数组不能replaceRoot
-                if (!Global.APP.equalsIgnoreCase(path.getPath()) && !StringUtils.hasLength(path.getKey()) && !StringUtils.hasLength(path.getValue())) {
+                if (!Consts.APP.equalsIgnoreCase(path.getPath()) && !StringUtils.hasLength(path.getKey()) && !StringUtils.hasLength(path.getValue())) {
                     lastPathWithoutParam = path.getPath();
                 }
             }
@@ -88,7 +85,7 @@ public class MdbQueryRepositoryImpl implements MdbQueryRepository {
 
         Aggregation aggregation = Aggregation.newAggregation(aggregationOperations).withOptions(AggregationOptions.builder().allowDiskUse(true).build());
 
-        AggregationResults<Map> aggregateResult = mongoTemplate.aggregate(aggregation, Global.COLLECTION_NAME, Map.class);
+        AggregationResults<Map> aggregateResult = mongoTemplate.aggregate(aggregation, Consts.COLLECTION_NAME, Map.class);
 
         if (CollectionUtils.isEmpty(aggregateResult.getMappedResults())) {
             return new HashMap<>();

@@ -1,4 +1,4 @@
-package com.netease.cloud.lowcode.naslstorage.entity.path;
+package com.netease.cloud.lowcode.naslstorage.backend.path;
 
 import lombok.Data;
 
@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Data
-public class RangePath implements PartPath<Integer> {
+public class RangePath implements SegmentPath<Integer> {
     /**
      * modules[1:-2]中的modules
      */

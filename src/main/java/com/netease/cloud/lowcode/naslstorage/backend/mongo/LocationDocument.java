@@ -1,4 +1,4 @@
-package com.netease.cloud.lowcode.naslstorage.entity;
+package com.netease.cloud.lowcode.naslstorage.backend.mongo;
 
 import org.bson.types.ObjectId;
 

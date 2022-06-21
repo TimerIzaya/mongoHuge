@@ -1,6 +1,5 @@
 package com.netease.cloud.lowcode.naslstorage.interceptor;
 
-import com.netease.cloud.lowcode.naslstorage.context.AppIdContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;

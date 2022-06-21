@@ -1,4 +1,4 @@
-package com.netease.cloud.lowcode.naslstorage.entity.path;
+package com.netease.cloud.lowcode.naslstorage.backend.path;
 
 
 import lombok.Data;
@@ -10,7 +10,7 @@ import java.util.Map;
  * partPath中的kv类型，比如 modules[name="xxx"]
  */
 @Data
-public class KvPath implements PartPath<String> {
+public class KvPath implements SegmentPath<String> {
     /**
      * modules[name="xxx"]中的modules
      */

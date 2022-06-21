@@ -1,9 +1,9 @@
-package com.netease.cloud.lowcode.naslstorage.service.impl;
+package com.netease.cloud.lowcode.naslstorage.backend.mongo;
 
-import com.netease.cloud.lowcode.naslstorage.common.Global;
-import com.netease.cloud.lowcode.naslstorage.entity.path.*;
-import com.netease.cloud.lowcode.naslstorage.service.JsonPathSchema;
-import com.netease.cloud.lowcode.naslstorage.service.PathConverter;
+import com.netease.cloud.lowcode.naslstorage.common.Consts;
+import com.netease.cloud.lowcode.naslstorage.backend.path.*;
+import com.netease.cloud.lowcode.naslstorage.backend.JsonPathSchema;
+import com.netease.cloud.lowcode.naslstorage.backend.PathConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -75,11 +75,11 @@ public class MdbPathConverter implements PathConverter<List<JsonPathSchema>> {
     }
 
     @Override
-    public List<PartPath> pathForSetKey(String jsonPath) {
-        List<PartPath> ret = new ArrayList<>();
+    public List<SegmentPath> pathForSetKey(String jsonPath) {
+        List<SegmentPath> ret = new ArrayList<>();
         String[] splitPaths = jsonPath.split("\\.");
         for (String splitPath : splitPaths) {
-            if (splitPath.equals(Global.APP)) {
+            if (splitPath.equals(Consts.APP)) {
                 continue;
             }
             int i = splitPath.indexOf("["), j = splitPath.indexOf("]"), e = splitPath.indexOf("="), r = splitPath.indexOf(":");

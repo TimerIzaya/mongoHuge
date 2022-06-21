@@ -1,6 +1,6 @@
-package com.netease.cloud.lowcode.naslstorage.service;
+package com.netease.cloud.lowcode.naslstorage.backend;
 
-import com.netease.cloud.lowcode.naslstorage.entity.path.PartPath;
+import com.netease.cloud.lowcode.naslstorage.backend.path.SegmentPath;
 
 import java.util.List;
 
@@ -31,5 +31,5 @@ public interface PathConverter<T> {
      * @description: 将jsonPath拆分成partPaths，用于生成setKey进行update
      * @return:
      */
-    List<PartPath> pathForSetKey(String jsonPath);
+    List<SegmentPath> pathForSetKey(String jsonPath);
 }

@@ -1,4 +1,4 @@
-package com.netease.cloud.lowcode.naslstorage.service;
+package com.netease.cloud.lowcode.naslstorage.backend;
 
 import com.netease.cloud.lowcode.naslstorage.common.ApiBaseResult;
 import com.netease.cloud.lowcode.naslstorage.dto.ActionDTO;
@@ -6,9 +6,7 @@ import com.netease.cloud.lowcode.naslstorage.dto.QueryDTO;
 
 import java.util.List;
 
-public interface StorageService {
-
+public interface BackendStore {
     List<Object> batchQuery(List<QueryDTO> queryDTOS);
-
-    ApiBaseResult batch(List<ActionDTO> actionDTOS);
+    ApiBaseResult batchAction(List<ActionDTO> actionDTOS);
 }

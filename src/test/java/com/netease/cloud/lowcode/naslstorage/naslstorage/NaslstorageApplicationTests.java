@@ -1,5 +1,6 @@
 package com.netease.cloud.lowcode.naslstorage.naslstorage;
 
+import com.mongodb.client.ClientSession;
 import com.netease.cloud.lowcode.naslstorage.NaslstorageApplication;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +36,11 @@ class SpringBootApplicationTests {
         while (it.hasNext()) {
             System.out.println(it.next());
         }
+    }
+
+    @Test
+    public void testTxn(){
+
     }
 
 }

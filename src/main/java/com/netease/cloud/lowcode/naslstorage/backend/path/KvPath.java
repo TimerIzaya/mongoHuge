@@ -14,7 +14,7 @@ public class KvPath implements SegmentPath<String> {
     /**
      * modules[name="xxx"]中的modules
      */
-    String arrName;
+    String path;
     /**
      * modules[name="xxx"]中的name
      */
@@ -24,15 +24,15 @@ public class KvPath implements SegmentPath<String> {
      */
     String value;
 
-    public KvPath(String arrName, String key, String value) {
-        this.arrName = arrName;
+    public KvPath(String path, String key, String value) {
+        this.path = path;
         this.key = key;
         this.value = value;
     }
 
     @Override
-    public String getType() {
-        return "kv";
+    public SegmentPathType getType() {
+        return SegmentPathType.kv;
     }
 
     @Override
@@ -41,5 +41,10 @@ public class KvPath implements SegmentPath<String> {
         map.put("key", key);
         map.put("value", value);
         return map;
+    }
+
+    @Override
+    public String getPath() {
+        return path;
     }
 }

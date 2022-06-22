@@ -5,12 +5,11 @@ import com.netease.cloud.lowcode.naslstorage.common.ApiErrorCode;
 import com.netease.cloud.lowcode.naslstorage.common.Consts;
 import com.netease.cloud.lowcode.naslstorage.dto.ActionDTO;
 import com.netease.cloud.lowcode.naslstorage.dto.QueryDTO;
-import com.netease.cloud.lowcode.naslstorage.backend.PathConverter;
 import com.netease.cloud.lowcode.naslstorage.backend.BackendStore;
-import com.netease.cloud.lowcode.naslstorage.util.PathUtil;
+import com.netease.cloud.lowcode.naslstorage.enums.ActionEnum;
+import com.netease.cloud.lowcode.naslstorage.backend.path.PathUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -26,17 +25,10 @@ import java.util.stream.Collectors;
 public class MdbStore implements BackendStore {
 
     @Resource(name = "splitMdbAppRepositoryImpl")
-    private MdbSplitQueryRepositoryImpl appQueryRepository;
+    private MdbSplitQueryRepository appQueryRepository;
 
     @Autowired
-    private MdbUpdateRepository mdbUpdateRepository;
-
-    @Resource(name = "mdbPathConverter")
-    private PathConverter pathConverter;
-
-    @Resource
-    MongoTemplate mongoTemplate;
-
+    private MdbAppUpdateRepository mdbAppUpdateRepository;
 
     @Override
     public List<Object> batchQuery(List<QueryDTO> queryDTOS) {
@@ -64,7 +56,7 @@ public class MdbStore implements BackendStore {
             actionDTOS.forEach(this::solve);
             return ApiBaseResult.successRet();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("批量操作文档失败，", e);
             return ApiBaseResult.errorOf(ApiErrorCode.INTERNAL_SERVER_ERROR.getStatusCode(), ApiErrorCode.INTERNAL_SERVER_ERROR.getZnMessage());
         }
     }
@@ -76,24 +68,24 @@ public class MdbStore implements BackendStore {
         Map<String, Object> object = actionDTO.getObject();
         // path为app则初始化app或者删除app
         if (Consts.APP.equals(rawPath)) {
-            if (Consts.ACTION_CREATE.equals(action)) {
+            if (ActionEnum.CREATE.getAction().equals(action)) {
                 // 如果存在先删除再生成，否则不会覆盖
-                mdbUpdateRepository.deleteApp(Consts.APP);
-                mdbUpdateRepository.initApp(actionDTO.getObject());
+                mdbAppUpdateRepository.deleteApp(Consts.APP);
+                mdbAppUpdateRepository.initApp(actionDTO.getObject());
                 return;
-            } else if (Consts.ACTION_DELETE.equals(action)) {
-                mdbUpdateRepository.deleteApp(Consts.APP);
+            } else if (ActionEnum.DELETE.getAction().equals(action)) {
+                mdbAppUpdateRepository.deleteApp(Consts.APP);
                 return;
             }
         }
 
         String[] splits = PathUtil.splitJsonPath(rawPath);
-        if (Consts.ACTION_CREATE.equals(action)) {
-            mdbUpdateRepository.create(splits[0], splits[1], object);
-        } else if (Consts.ACTION_UPDATE.equals(action)) {
-            mdbUpdateRepository.update(splits[0], splits[1], object);
-        } else if (Consts.ACTION_DELETE.equals(action)) {
-            mdbUpdateRepository.delete(splits[0], splits[1]);
+        if (ActionEnum.CREATE.equals(action)) {
+            mdbAppUpdateRepository.create(splits[0], splits[1], object);
+        } else if (ActionEnum.UPDATE.equals(action)) {
+            mdbAppUpdateRepository.update(splits[0], splits[1], object);
+        } else if (ActionEnum.DELETE.equals(action)) {
+            mdbAppUpdateRepository.delete(splits[0], splits[1]);
         }
     }
 }

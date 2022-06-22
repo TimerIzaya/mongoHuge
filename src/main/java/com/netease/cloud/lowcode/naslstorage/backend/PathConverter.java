@@ -17,7 +17,7 @@ public interface PathConverter<T> {
      * @param jsonPath
      * @return
      */
-    List<JsonPathSchema> convert(String jsonPath);
+    List<SegmentPath> convert(String jsonPath);
 
     /**
      * 将mdb 的path 反向转为自定义jsonPath
@@ -26,10 +26,4 @@ public interface PathConverter<T> {
      * @return
      */
     String reverseConvert(T t);
-
-    /**
-     * @description: 将jsonPath拆分成partPaths，用于生成setKey进行update
-     * @return:
-     */
-    List<SegmentPath> pathForSetKey(String jsonPath);
 }

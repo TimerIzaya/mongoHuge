@@ -10,7 +10,7 @@ public class RangePath implements SegmentPath<Integer> {
     /**
      * modules[1:-2]中的modules
      */
-    String arrName;
+    String path;
 
     /**
      * modules[1:-2]中的1
@@ -23,8 +23,8 @@ public class RangePath implements SegmentPath<Integer> {
     int end;
 
     @Override
-    public String getType() {
-        return "range";
+    public SegmentPathType getType() {
+        return SegmentPathType.range;
     }
 
     @Override
@@ -35,8 +35,13 @@ public class RangePath implements SegmentPath<Integer> {
         return map;
     }
 
-    public RangePath(String arrName, int start, int end) {
-        this.arrName = arrName;
+    @Override
+    public String getPath() {
+        return path;
+    }
+
+    public RangePath(String path, int start, int end) {
+        this.path = path;
         this.start = start;
         this.end = end;
     }

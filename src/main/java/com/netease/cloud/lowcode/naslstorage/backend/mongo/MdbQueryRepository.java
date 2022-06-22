@@ -1,7 +1,9 @@
 package com.netease.cloud.lowcode.naslstorage.backend.mongo;
 
+import com.netease.cloud.lowcode.naslstorage.backend.path.IdxPath;
+import com.netease.cloud.lowcode.naslstorage.backend.path.KvPath;
+import com.netease.cloud.lowcode.naslstorage.backend.path.SegmentPath;
 import com.netease.cloud.lowcode.naslstorage.common.Consts;
-import com.netease.cloud.lowcode.naslstorage.backend.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.backend.PathConverter;
 import lombok.SneakyThrows;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -18,16 +20,16 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 @Service("mdbAppRepositoryImpl")
-public class MdbQueryRepositoryImpl {
+public class MdbQueryRepository {
 
     @Resource
     private MongoTemplate mongoTemplate;
     @Resource
-    private PathConverter<List<JsonPathSchema>> pathConverter;
+    private PathConverter<List<SegmentPath>> pathConverter;
 
     @SneakyThrows
     public Object get(RepositoryOperationContext context, String jsonPath, List<String> excludes) {
-        List<JsonPathSchema> paths = pathConverter.convert(jsonPath);
+        List<SegmentPath> paths = pathConverter.convert(jsonPath);
         List<AggregationOperation> aggregationOperations = new ArrayList<>();
         /**
          * 文档过滤
@@ -37,15 +39,16 @@ public class MdbQueryRepositoryImpl {
         }
         String lastPathWithoutParam = null;
         for (int i = 0; i < paths.size(); i++) {
-            JsonPathSchema path = paths.get(i);
-            if (!StringUtils.hasLength(path.getKey()) && StringUtils.hasLength(path.getValue())) {
-                // key 为空，value 不为空是数组下标查询
-                aggregationOperations.add(Aggregation.project().andExpression(path.getPath()).slice(1, Integer.valueOf(path.getValue())));
-                aggregationOperations.add(Aggregation.unwind(path.getPath()));
-                aggregationOperations.add(Aggregation.replaceRoot(path.getPath()));
-            } else if (StringUtils.hasLength(path.getKey()) && StringUtils.hasLength(path.getValue())) {
+            SegmentPath path = paths.get(i);
+            if (path.getType() == SegmentPath.SegmentPathType.idx) {
+                IdxPath tmp = (IdxPath) path;
+                aggregationOperations.add(Aggregation.project().andExpression(tmp.getPath()).slice(1, Integer.valueOf(tmp.getIdx())));
+                aggregationOperations.add(Aggregation.unwind(tmp.getPath()));
+                aggregationOperations.add(Aggregation.replaceRoot(tmp.getPath()));
+            } else if (path.getType() == SegmentPath.SegmentPathType.kv) {
                 // key 和value 都不为空
-                aggregationOperations.add(Aggregation.match(Criteria.where(path.getKey()).is(path.getValue())));
+                KvPath tmp = (KvPath) path;
+                aggregationOperations.add(Aggregation.match(Criteria.where(tmp.getKey()).is(tmp.getValue())));
             } else {
                 if (Consts.APP.equalsIgnoreCase(path.getPath())) {
                     // 应用过滤信息不在path 中，是通过header 传入的
@@ -54,10 +57,10 @@ public class MdbQueryRepositoryImpl {
             }
             if (i < paths.size() - 1) {
                 // 不是最后一个元素
-                JsonPathSchema nextPath = paths.get(i + 1);
+                SegmentPath nextPath = paths.get(i + 1);
                 // i+1 是最后一个元素并且没有搜索条件，则不进行replaceRoot
-                if ((i + 1 == paths.size() -1) && !StringUtils.hasLength(nextPath.getKey()) && !StringUtils.hasLength(nextPath.getValue())) {
-                } else if (!(!StringUtils.hasLength(nextPath.getKey()) && StringUtils.hasLength(nextPath.getValue()))) {
+                if ((i + 1 == paths.size() -1) && SegmentPath.SegmentPathType.field == nextPath.getType()) {
+                } else if (SegmentPath.SegmentPathType.kv == nextPath.getType()) {
                     // 非最后一段没有搜索条件的；非下一段是数组下标搜索
                     UnwindOperation unwindOperation = Aggregation.unwind(nextPath.getPath());
                     aggregationOperations.add(unwindOperation);
@@ -67,7 +70,7 @@ public class MdbQueryRepositoryImpl {
             } else {
                 // key、value 都为null，这种情况是路径上没有搜索条件, 通常是JsonObject 里选取字段。只有在最后一段path 中可能为数组，中间不带搜索条件的不能是数组。
                 // mongodb 限制：非数组不能replaceRoot
-                if (!Consts.APP.equalsIgnoreCase(path.getPath()) && !StringUtils.hasLength(path.getKey()) && !StringUtils.hasLength(path.getValue())) {
+                if (!Consts.APP.equalsIgnoreCase(path.getPath()) && SegmentPath.SegmentPathType.field == path.getType()) {
                     lastPathWithoutParam = path.getPath();
                 }
             }

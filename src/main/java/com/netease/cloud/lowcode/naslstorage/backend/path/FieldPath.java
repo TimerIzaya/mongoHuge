@@ -11,13 +11,13 @@ public class FieldPath implements SegmentPath<String> {
     String value;
 
     @Override
-    public String getType() {
-        return "field";
+    public SegmentPathType getType() {
+        return SegmentPathType.field;
     }
 
     @Override
-    public String getArrName() {
-        return "";
+    public String getPath() {
+        return value;
     }
 
     @Override

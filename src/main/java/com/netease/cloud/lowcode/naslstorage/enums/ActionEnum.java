@@ -13,6 +13,10 @@ public enum ActionEnum {
         this.note = note;
     }
 
+    public String getAction() {
+        return action;
+    }
+
     public static ActionEnum from(String action) {
         for (ActionEnum actionEnum : values()) {
             if (actionEnum.action.equalsIgnoreCase(action)) {

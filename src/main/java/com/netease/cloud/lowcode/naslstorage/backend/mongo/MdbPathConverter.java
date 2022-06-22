@@ -1,73 +1,48 @@
 package com.netease.cloud.lowcode.naslstorage.backend.mongo;
 
-import com.netease.cloud.lowcode.naslstorage.common.Consts;
 import com.netease.cloud.lowcode.naslstorage.backend.path.*;
-import com.netease.cloud.lowcode.naslstorage.backend.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.backend.PathConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 实现自定义path 到mongodb 支持的jsonPath 转换
  */
 @Service("mdbPathConverter")
-public class MdbPathConverter implements PathConverter<List<JsonPathSchema>> {
+public class MdbPathConverter implements PathConverter<List<SegmentPath>> {
     private static final String PATH_SPLITTER = "\\.";
-    private static final Pattern SPLIT_PATH_PATTERN = Pattern.compile("(.+)\\[(\\d+|.+=.+)\\]");
+    private static final String PARAM_START_TAG = "[";
+    private static final String PARAM_END_TAG = "]";
     private static final String PARAM_SPLITTER = "=";
+    private static final String ARR_SLICE_SPLITTER = ":";
+
 
     @Override
-    public List<JsonPathSchema> convert(String jsonPath) {
-        List<JsonPathSchema> ret = new ArrayList<>();
-        List<String> splitPaths = Arrays.asList(jsonPath.split(PATH_SPLITTER));
-        for (String splitPath : splitPaths) {
-            Matcher matcher = SPLIT_PATH_PATTERN.matcher(splitPath);
-            JsonPathSchema pathSchema = new JsonPathSchema();
-            if (!matcher.matches()) {
-                pathSchema.setPath(splitPath);
-            } else {
-                pathSchema.setPath(matcher.group(1));
-                List<String> param = Arrays.asList(matcher.group(2).split(PARAM_SPLITTER));
-                if (param.size() > 1) {
-                    pathSchema.setKey(param.get(0));
-                    pathSchema.setValue(param.get(1));
-                } else {
-                    pathSchema.setValue(param.get(0));
-                }
-            }
-            ret.add(pathSchema);
-        }
-        return ret;
-    }
-
-    @Override
-    public String reverseConvert(List<JsonPathSchema> jsonPathSchemas) {
-        if (CollectionUtils.isEmpty(jsonPathSchemas)) {
+    public String reverseConvert(List<SegmentPath> segmentPaths) {
+        if (CollectionUtils.isEmpty(segmentPaths)) {
             return null;
         }
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < jsonPathSchemas.size(); i++){
-            JsonPathSchema v = jsonPathSchemas.get(i);
+        for (int i = 0; i < segmentPaths.size(); i++){
+            SegmentPath v = segmentPaths.get(i);
             builder.append(v.getPath());
-            if (StringUtils.hasLength(v.getKey()) && StringUtils.hasLength(v.getValue())) {
-                builder.append("[");
-                builder.append(v.getKey());
-                builder.append("=");
-                builder.append(v.getValue());
-                builder.append("]");
-            } else if (!StringUtils.hasLength(v.getKey()) && StringUtils.hasLength(v.getValue())) {
-                builder.append("[");
-                builder.append(v.getValue());
-                builder.append("]");
+            if (SegmentPath.SegmentPathType.kv == v.getType()) {
+                KvPath tmp = (KvPath) v;
+                builder.append(PARAM_START_TAG);
+                builder.append(tmp.getKey());
+                builder.append(PARAM_SPLITTER);
+                builder.append(tmp.getValue());
+                builder.append(PARAM_END_TAG);
+            } else if (SegmentPath.SegmentPathType.idx == v.getType()) {
+                IdxPath tmp = (IdxPath) v;
+                builder.append(PARAM_START_TAG);
+                builder.append(tmp.getIdx());
+                builder.append(PARAM_END_TAG);
             }
-            if (i != jsonPathSchemas.size() -1) {
+            if (i != segmentPaths.size() -1) {
                 builder.append(".");
             }
         }
@@ -75,29 +50,29 @@ public class MdbPathConverter implements PathConverter<List<JsonPathSchema>> {
     }
 
     @Override
-    public List<SegmentPath> pathForSetKey(String jsonPath) {
+    public List<SegmentPath> convert(String jsonPath) {
         List<SegmentPath> ret = new ArrayList<>();
-        String[] splitPaths = jsonPath.split("\\.");
+        String[] splitPaths = jsonPath.split(PATH_SPLITTER);
         for (String splitPath : splitPaths) {
-            if (splitPath.equals(Consts.APP)) {
-                continue;
-            }
-            int i = splitPath.indexOf("["), j = splitPath.indexOf("]"), e = splitPath.indexOf("="), r = splitPath.indexOf(":");
+            int i = splitPath.indexOf(PARAM_START_TAG), j = splitPath.indexOf(PARAM_END_TAG), e = splitPath.indexOf(PARAM_SPLITTER), r = splitPath.indexOf(ARR_SLICE_SPLITTER);
             // FieldPath
             if (i == -1) {
                 ret.add(new FieldPath(splitPath));
                 break;
             }
             String arrName = splitPath.substring(0, i).trim();
-            if (e != -1) {// KvPath
+            if (e != -1) {
+                // KvPath
                 String key = splitPath.substring(i + 1, e).trim();
                 String value = splitPath.substring(e + 1, j).trim();
                 ret.add(new KvPath(arrName, key, value));
-            } else if (r != -1) { // RangePath
+            } else if (r != -1) {
+                // RangePath
                 int start = Integer.parseInt(splitPath.substring(i + 1, r).trim());
                 int end = Integer.parseInt(splitPath.substring(r + 1, j).trim());
                 ret.add(new RangePath(arrName, start, end));
-            } else { // IdxPath
+            } else {
+                // IdxPath
                 int idx = Integer.parseInt(splitPath.substring(i + 1, j).trim());
                 ret.add(new IdxPath(arrName, idx));
             }

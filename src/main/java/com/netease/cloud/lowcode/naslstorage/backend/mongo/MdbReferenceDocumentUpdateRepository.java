@@ -13,8 +13,11 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.Resource;
 import java.util.*;
 
+/**
+ * 处理应用文档关联的view 和logic 文档
+ */
 @Repository
-public class MdbMdbRepositoryUtil {
+public class MdbReferenceDocumentUpdateRepository {
 
     @Resource
     private MongoTemplate mongoTemplate;
@@ -128,9 +131,9 @@ public class MdbMdbRepositoryUtil {
         setKeys.add(new StringBuilder());
         for (int i = 0; i < size; i++) {
             SegmentPath segmentPath = paths.get(i);
-            if (segmentPath.getType().equals(Consts.PATH_TYPE_KV)) {
+            if (segmentPath.getType() == SegmentPath.SegmentPathType.kv) {
                 KvPath kvPath = (KvPath) segmentPath;
-                String arrName = kvPath.getArrName();
+                String arrName = kvPath.getPath();
                 String key = kvPath.getKey();
                 String value = kvPath.getValue();
                 // setKey中的变量只能是数字和字母,且首位是字母
@@ -139,14 +142,14 @@ public class MdbMdbRepositoryUtil {
                     setKey.append(arrName).append(".$[").append(var).append("]");
                 }
                 update.filterArray(Criteria.where(var + "." + key).is(value));
-            } else if (segmentPath.getType().equals(Consts.PATH_TYPE_IDX)) {
+            } else if (segmentPath.getType() == SegmentPath.SegmentPathType.idx) {
                 IdxPath idxPath = (IdxPath) segmentPath;
-                String arrName = idxPath.getArrName();
+                String arrName = idxPath.getPath();
                 int idx = idxPath.getIdx();
                 for (StringBuilder setKey : setKeys) {
                     setKey.append(arrName).append(".").append(idx);
                 }
-            } else if (segmentPath.getType().equals(Consts.PATH_TYPE_RANGE)) {
+            } else if (segmentPath.getType() == SegmentPath.SegmentPathType.range) {
                 RangePath rangePath = (RangePath) segmentPath;
                 int start = rangePath.getStart();
                 int end = rangePath.getEnd();
@@ -155,7 +158,7 @@ public class MdbMdbRepositoryUtil {
                 for (int idx = start; idx < end; idx++) {
                     for (StringBuilder setKey : setKeys) {
                         StringBuilder sb = new StringBuilder(setKey);
-                        sb.append(rangePath.getArrName()).append(".").append(idx);
+                        sb.append(rangePath.getPath()).append(".").append(idx);
                         newSetKeys.add(sb);
                     }
                 }

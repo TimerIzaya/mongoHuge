@@ -12,21 +12,21 @@ import java.util.Map;
 @Data
 public class IdxPath implements SegmentPath<Integer> {
 
-    String arrName;
+    String path;
 
     /**
      * modules[1]中的1
      */
     int idx;
 
-    public IdxPath(String arrName, int idx) {
-        this.arrName = arrName;
+    public IdxPath(String path, int idx) {
+        this.path = path;
         this.idx = idx;
     }
 
     @Override
-    public String getType() {
-        return "idx";
+    public SegmentPathType getType() {
+        return SegmentPathType.idx;
     }
 
     @Override
@@ -34,5 +34,10 @@ public class IdxPath implements SegmentPath<Integer> {
         Map<String, Integer> map = new HashMap<>();
         map.put("idx", idx);
         return map;
+    }
+
+    @Override
+    public String getPath() {
+        return path;
     }
 }

@@ -1,10 +1,10 @@
-package com.netease.cloud.lowcode.naslstorage.util;
+package com.netease.cloud.lowcode.naslstorage.backend.path;
 
+
+import com.netease.cloud.lowcode.naslstorage.common.Consts;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class PathUtil {
 

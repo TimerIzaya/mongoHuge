@@ -2,7 +2,6 @@ package com.netease.cloud.lowcode.naslstorage.backend.mongo;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
-import com.netease.cloud.lowcode.naslstorage.backend.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.backend.PathConverter;
 import com.netease.cloud.lowcode.naslstorage.backend.path.IdxPath;
 import com.netease.cloud.lowcode.naslstorage.backend.path.KvPath;
@@ -31,19 +30,19 @@ import java.util.*;
 
 @Slf4j
 @Repository
-public class MdbUpdateRepository {
+public class MdbAppUpdateRepository {
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
     @Resource
-    private MdbMdbRepositoryUtil repoUtil;
+    private MdbReferenceDocumentUpdateRepository repoUtil;
 
     @Resource(name = "mdbPathConverter")
     private PathConverter pathConverter;
 
     @Resource(name = "splitMdbAppRepositoryImpl")
-    private MdbSplitQueryRepositoryImpl splitUtil;
+    private MdbSplitQueryRepository splitUtil;
 
     public void initApp(Map<String, Object> object) {
         List<Map> saveViews = repoUtil.saveViews((List<Map>) object.get(Consts.VIEWS));
@@ -118,7 +117,7 @@ public class MdbUpdateRepository {
     private void createWhenOuterEmpty(String appId, String innerPath, Map<String, Object> object) {
         Query query = new Query();
         query.addCriteria(Criteria.where(Consts.APP_ID).is(appId));
-        List<SegmentPath> paths = pathConverter.pathForSetKey(innerPath);
+        List<SegmentPath> paths = pathConverter.convert(innerPath);
         createAtTargetIndex(query, paths, object);
     }
 
@@ -134,7 +133,7 @@ public class MdbUpdateRepository {
         for (ObjectId targetDocId : targetDocIds) {
             query.addCriteria(Criteria.where(Consts.OBJECT_ID).is(targetDocId));
         }
-        List<SegmentPath> paths = pathConverter.pathForSetKey(innerPath);
+        List<SegmentPath> paths = pathConverter.convert(innerPath);
         createAtTargetIndex(query, paths, object);
     }
 
@@ -148,7 +147,7 @@ public class MdbUpdateRepository {
         Map map = repoUtil.saveView(object);
         // 更新app结构
         Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
-        List<SegmentPath> paths = pathConverter.pathForSetKey(outerPath);
+        List<SegmentPath> paths = pathConverter.convert(outerPath);
         createAtTargetIndex(query, paths, map);
     }
 
@@ -164,7 +163,7 @@ public class MdbUpdateRepository {
         for (String setKey : setKeys) {
             String finalSetKey = setKey.isEmpty() ? "" : setKey + ".";
             IdxPath lastIdxPath = (IdxPath) paths.get(paths.size() - 1);
-            finalSetKey += lastIdxPath.getArrName(); // 根据lastPath确定要create的数组
+            finalSetKey += lastIdxPath.getPath(); // 根据lastPath确定要create的数组
             int idx = lastIdxPath.getIdx(); // // 根据lastPath确定要create的数组位置
             update.push(finalSetKey).atPosition(idx).value(object);
         }
@@ -180,7 +179,7 @@ public class MdbUpdateRepository {
      */
     private void updateWhenOuterEmpty(String appId, String innerPath, Map<String, Object> object) {
         Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
-        List<SegmentPath> paths = pathConverter.pathForSetKey(innerPath);
+        List<SegmentPath> paths = pathConverter.convert(innerPath);
         for (String key : object.keySet()) {
             if (Consts.VIEWS.equals(key)) {
                 // 删除旧views数组
@@ -211,7 +210,7 @@ public class MdbUpdateRepository {
         for (ObjectId targetDocId : targetDocIds) {
             query.addCriteria(Criteria.where(Consts.OBJECT_ID).is(targetDocId));
         }
-        List<SegmentPath> paths = pathConverter.pathForSetKey(innerPath);
+        List<SegmentPath> paths = pathConverter.convert(innerPath);
         updateWhenSetKeyDone(query, paths, object);
     }
 
@@ -251,7 +250,7 @@ public class MdbUpdateRepository {
 
                 // 最后同步更新app结构
                 Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
-                List<SegmentPath> paths = pathConverter.pathForSetKey(outerPath);
+                List<SegmentPath> paths = pathConverter.convert(outerPath);
                 updateWhenSetKeyDone(query, paths, childrenMap);
             } else {
                 commonField.put(key, object.get(key));
@@ -269,7 +268,7 @@ public class MdbUpdateRepository {
             updateWhenSetKeyDone(queryForSubDoc, new ArrayList<>(), nameMap);
             // 最后同步更新app中的name
             Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
-            List<SegmentPath> paths = pathConverter.pathForSetKey(outerPath);
+            List<SegmentPath> paths = pathConverter.convert(outerPath);
             updateWhenSetKeyDone(query, paths, nameMap);
         }
 
@@ -345,7 +344,7 @@ public class MdbUpdateRepository {
             repoUtil.deleteLogics(getLogics(appId));
         }
         Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
-        List<SegmentPath> paths = pathConverter.pathForSetKey(innerPath);
+        List<SegmentPath> paths = pathConverter.convert(innerPath);
         deleteByLastPathType(query, paths);
     }
 
@@ -365,7 +364,7 @@ public class MdbUpdateRepository {
             // 同步修改app结构
             Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
             String rawPath = outerPath + "." + innerPath;
-            List<SegmentPath> paths = pathConverter.pathForSetKey(rawPath);
+            List<SegmentPath> paths = pathConverter.convert(rawPath);
             deleteByLastPathType(query, paths);
         }
         // 同步删除view子文档中的children 或者 删除普通字段
@@ -374,7 +373,7 @@ public class MdbUpdateRepository {
         for (ObjectId oid : finalDocIds) {
             query.addCriteria(Criteria.where(Consts.OBJECT_ID).is(oid));
         }
-        List<SegmentPath> paths = pathConverter.pathForSetKey(innerPath);
+        List<SegmentPath> paths = pathConverter.convert(innerPath);
         deleteByLastPathType(query, paths);
     }
 
@@ -397,7 +396,7 @@ public class MdbUpdateRepository {
 
         // 在删除app中对应的结构
         Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
-        List<SegmentPath> paths = pathConverter.pathForSetKey(rawPath);
+        List<SegmentPath> paths = pathConverter.convert(rawPath);
         deleteByLastPathType(query, paths);
     }
 
@@ -407,10 +406,10 @@ public class MdbUpdateRepository {
      * @return:
      */
     private void deleteByLastPathType(Query query, List<SegmentPath> paths) {
-        String lastPathType = paths.get(paths.size() - 1).getType();
-        if (Consts.PATH_TYPE_FIELD.equals(lastPathType)) {
+        SegmentPath.SegmentPathType lastPathType = paths.get(paths.size() - 1).getType();
+        if (SegmentPath.SegmentPathType.field == lastPathType) {
             deleteByField(query, paths);
-        } else if (Consts.PATH_TYPE_KV.equals(lastPathType)) {
+        } else if (SegmentPath.SegmentPathType.kv == lastPathType) {
             deleteByKv(query, paths);
         } else {
             deleteByIdxOrRange(query, paths);
@@ -444,7 +443,7 @@ public class MdbUpdateRepository {
         for (int i = 0; i < setKeys.size(); i++) {
             String s = setKeys.get(i);
             s = s.isEmpty() ? "" : s + ".";
-            s += lastKvPath.getArrName();
+            s += lastKvPath.getPath();
             setKeys.set(i, s);
         }
         String key = lastKvPath.getKey(), value = lastKvPath.getValue();
@@ -477,8 +476,8 @@ public class MdbUpdateRepository {
 
         String arrName = "";
         SegmentPath lastPath = paths.get(paths.size() - 1);
-        if (lastPath.getType().equals(Consts.PATH_TYPE_IDX) || lastPath.getType().equals(Consts.PATH_TYPE_RANGE)) {
-            arrName = lastPath.getArrName();
+        if (lastPath.getType() == SegmentPath.SegmentPathType.idx || lastPath.getType() == SegmentPath.SegmentPathType.range) {
+            arrName = lastPath.getPath();
         }
 
         for (String deleteSetKey : deleteSetKeys) {
@@ -496,7 +495,7 @@ public class MdbUpdateRepository {
      */
     private List<ObjectId> getFinalDocs(String outerPath) {
         outerPath = Consts.APP + "." + outerPath;
-        List<JsonPathSchema> convert = pathConverter.convert(outerPath);
+        List<SegmentPath> convert = pathConverter.convert(outerPath);
         LocationDocument location = splitUtil.locationDoc(convert);
         return location.getObjectIds();
     }

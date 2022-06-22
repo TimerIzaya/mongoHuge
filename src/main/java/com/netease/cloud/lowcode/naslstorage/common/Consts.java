@@ -22,14 +22,6 @@ public class Consts {
     static public String VIEWS = "views";
     static public String CHILDREN = "children";
     static public String LOGICS = "logics";
-    static public String PATH_TYPE_IDX = "idx";
-    static public String PATH_TYPE_FIELD = "field";
-    static public String PATH_TYPE_RANGE = "range";
-    static public String PATH_TYPE_KV = "kv";
-
-    static public String ACTION_CREATE = "create";
-    static public String ACTION_UPDATE = "update";
-    static public String ACTION_DELETE = "delete";
 
     static public String TIMESTAMP = "timestamp";
 

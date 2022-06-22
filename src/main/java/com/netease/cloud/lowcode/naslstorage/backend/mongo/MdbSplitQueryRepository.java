@@ -1,8 +1,8 @@
 package com.netease.cloud.lowcode.naslstorage.backend.mongo;
 
+import com.netease.cloud.lowcode.naslstorage.backend.path.SegmentPath;
 import com.netease.cloud.lowcode.naslstorage.common.Consts;
 import com.netease.cloud.lowcode.naslstorage.interceptor.AppIdContext;
-import com.netease.cloud.lowcode.naslstorage.backend.JsonPathSchema;
 import com.netease.cloud.lowcode.naslstorage.backend.PathConverter;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -23,19 +23,19 @@ import java.util.stream.Collectors;
  * @author pingerchen
  */
 @Service("splitMdbAppRepositoryImpl")
-public class MdbSplitQueryRepositoryImpl {
+public class MdbSplitQueryRepository {
 
     @Resource
-    private MdbQueryRepositoryImpl mdbQueryRepository;
+    private MdbQueryRepository mdbQueryRepository;
 
     @Resource
     private MongoTemplate mongoTemplate;
 
     @Resource
-    private PathConverter<List<JsonPathSchema>> pathConverter;
+    private PathConverter<List<SegmentPath>> pathConverter;
 
     public Object get(RepositoryOperationContext context, String jsonPath, List<String> excludes) {
-        List<JsonPathSchema> pathSchemas = pathConverter.convert(jsonPath);
+        List<SegmentPath> pathSchemas = pathConverter.convert(jsonPath);
         // 路径上views.(children)+ 或logics在应用文档查询，其他的子path 需要定位到相应的关联文档操作
         // views.(children)+ 这段路径搜索只支持name或数组下标
         LocationDocument locationDocument = locationDoc(pathSchemas);
@@ -48,7 +48,7 @@ public class MdbSplitQueryRepositoryImpl {
             RepositoryOperationContext context = RepositoryOperationContext.builder().objectIds(locationDocument.getObjectIds()).appId(AppIdContext.get()).build();
             ret = mdbQueryRepository.get(context, locationDocument.getInnerJsonPath(), excludes);
         } else {
-            ret = mdbQueryRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), locationDocument.getOutJsonPath(), new ArrayList<>());
+            ret = mdbQueryRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), locationDocument.getOutJsonPath(), excludes);
         }
         return fillSubDoc(ret, excludes);
     }
@@ -138,7 +138,7 @@ public class MdbSplitQueryRepositoryImpl {
         return ret;
     }
 
-    public LocationDocument locationDoc(List<JsonPathSchema> pathSchemas) {
+    public LocationDocument locationDoc(List<SegmentPath> pathSchemas) {
         int lastIndex = -1;
         boolean needSplit = false;
         boolean notSplitProperty = true;
@@ -155,8 +155,8 @@ public class MdbSplitQueryRepositoryImpl {
         }
         LocationDocument locationDocument = new LocationDocument();
         List<ObjectId> objectIds = new ArrayList<>();
-        List<JsonPathSchema> queryPath;
-        List<JsonPathSchema> innerPath;
+        List<SegmentPath> queryPath;
+        List<SegmentPath> innerPath;
         if (needSplit) {
             queryPath = pathSchemas.subList(0, lastIndex);
             innerPath = pathSchemas.subList(lastIndex, pathSchemas.size());

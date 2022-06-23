@@ -58,7 +58,7 @@ public class MdbPathConverter implements PathConverter<List<SegmentPath>> {
             // FieldPath
             if (i == -1) {
                 ret.add(new FieldPath(splitPath));
-                break;
+                continue;
             }
             String arrName = splitPath.substring(0, i).trim();
             if (e != -1) {

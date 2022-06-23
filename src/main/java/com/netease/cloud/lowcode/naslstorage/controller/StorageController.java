@@ -24,7 +24,7 @@ public class StorageController {
     @Resource
     private BackendStore backendStore;
 
-    @PostMapping("/batch")
+    @PostMapping("/batchAction")
     public ApiBaseResult batch(@RequestBody List<ActionDTO> actionDTOS) {
         try {
             backendStore.batchAction(actionDTOS);
@@ -36,10 +36,15 @@ public class StorageController {
     }
 
     @PostMapping("/batchQuery")
-    public List<Object> batchQuery(@RequestBody List<QueryDTO> queryDTOS) {
+    public ApiBaseResult batchQuery(@RequestBody List<QueryDTO> queryDTOS) {
         if (CollectionUtils.isEmpty(queryDTOS)) {
-            return new ArrayList<>();
+            return ApiBaseResult.successRet();
         }
-        return backendStore.batchQuery(queryDTOS);
+        try {
+            List<Object> result  = backendStore.batchQuery(queryDTOS);
+            return ApiBaseResult.successRet(result);
+        } catch (Exception e) {
+            return ApiBaseResult.errorOf(ApiErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 }

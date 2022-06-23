@@ -85,9 +85,10 @@ public class MdbStore implements BackendStore {
             }
         }
 
-        /*if (!isObjectLegal(object)) {
+        // update和create需要校验object是否合法
+        if (!ActionEnum.DELETE.getAction().equals(action) && !isObjectLegal(object)) {
             throw new Exception("Object is illegal");
-        }*/
+        }
 
         String[] splits = PathUtil.splitPathForUpdate(rawPath);
         if (ActionEnum.CREATE.getAction().equals(action)) {

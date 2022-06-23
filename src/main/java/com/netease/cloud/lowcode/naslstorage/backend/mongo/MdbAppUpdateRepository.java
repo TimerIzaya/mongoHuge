@@ -125,53 +125,87 @@ public class MdbAppUpdateRepository {
 
 
     /**
-     * 不存在外部路径，需要修改app结构
+     * 不存在外部路径 = 修改app + 保存子文档
      * 路径用例："path": "app.processes[2].properties[6]",
-     * 路径用例："path": "app.views", 需要同步增加views
+     * 路径用例："path": "app.views"
+     * 路径用例："path": "app.logics"
      */
     private void createWhenOuterEmpty(String appId, String innerPath, Map<String, Object> object) {
-        Query query = new Query();
-        query.addCriteria(Criteria.where(Consts.APP_ID).is(appId));
+        boolean isView = object.containsKey(Consts.CONCEPT) && object.get(Consts.CONCEPT).equals(Consts.CONCEPT_VIEW);
+        boolean isLogic = object.containsKey(Consts.CONCEPT) && object.get(Consts.CONCEPT).equals(Consts.CONCEPT_LOGIC);
+        if (isView) {
+            object = storeUtil.saveView(object);
+        }
+        if (isLogic) {
+            object = storeUtil.saveLogic(object);
+        }
+
         List<SegmentPath> paths = pathConverter.convert(innerPath);
-        insertIntoArr(query, paths, object);
+        Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
+        createAtDoc(query, paths, object);
     }
 
 
     /**
-     * 存在外部路径，存在内部路径，需要修改app结构
+     * 存在外部路径 + 存在内部路径 = 只需要修改子文档 || 只需要修改app + 保存子文档
      * 对所有目标文档进行create
      * 路径用例："path": "app.views[2].children[3].children[4].elements[5].properties[6]"
+     * 路径用例："path": "app.views[2].children[3].children[4].children"
      */
     private void createWhenInnerExist(String outerPath, String innerPath, Map<String, Object> object) {
-        List<ObjectId> targetDocIds = getFinalDocs(outerPath);
-        Query query = new Query();
-        for (ObjectId targetDocId : targetDocIds) {
-            query.addCriteria(Criteria.where(Consts.OBJECT_ID).is(targetDocId));
+        boolean isView = object.containsKey(Consts.CONCEPT) && object.get(Consts.CONCEPT).equals(Consts.CONCEPT_VIEW);
+        boolean isLogic = object.containsKey(Consts.CONCEPT) && object.get(Consts.CONCEPT).equals(Consts.CONCEPT_LOGIC);
+        if (isView) {
+            object = storeUtil.saveView(object);
         }
-        List<SegmentPath> paths = pathConverter.convert(innerPath);
-        insertIntoArr(query, paths, object);
+        if (isLogic) {
+            object = storeUtil.saveLogic(object);
+        }
+        // object是普通对象, name需要定位到子文档，再修改
+        if (!isLogic && !isView) {
+            List<ObjectId> targetDocIds = getFinalDocs(outerPath);
+            Query querySubDoc = new Query();
+            for (ObjectId targetDocId : targetDocIds) {
+                querySubDoc.addCriteria(Criteria.where(Consts.OBJECT_ID).is(targetDocId));
+            }
+            List<SegmentPath> innerPaths = pathConverter.convert(innerPath);
+            createAtDoc(querySubDoc, innerPaths, object);
+        } else {
+            // object是view或者logic, 已保存, 直接修改app即可
+            String rawPath = outerPath + Consts.DOT + innerPath;
+            List<SegmentPath> rawPaths = pathConverter.convert(rawPath);
+            Query query = new Query(Criteria.where(Consts.APP_ID).is(AppIdContext.get()));
+            createAtDoc(query, rawPaths, object);
+        }
     }
 
 
     /**
-     * 存在外部路径，不存在内部路径，需要修改app结构
-     * 路径用例: "path": "app.views[2].children[3].children[4]"
+     * 存在外部路径 + 不存在内部路径 = 修改app + 保存子文档
+     * 路径用例: "path": "app.views[0].children[1].children[2].children[3]"
+     * 只需要修改app结构
      */
     private void createWhenInnerEmpty(String appId, String outerPath, Map<String, Object> object) {
-        // 先保存生成的view子文档
-        Map map = storeUtil.saveView(object);
-        // 更新app结构
-        Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
-        List<SegmentPath> paths = pathConverter.convert(outerPath);
-        insertIntoArr(query, paths, map);
+        boolean isView = object.containsKey(Consts.CONCEPT) && object.get(Consts.CONCEPT).equals(Consts.CONCEPT_VIEW);
+        boolean isLogic = object.containsKey(Consts.CONCEPT) && object.get(Consts.CONCEPT).equals(Consts.CONCEPT_LOGIC);
+        if (isView) {
+            object = storeUtil.saveView(object);
+        }
+        if (isLogic) {
+            object = storeUtil.saveLogic(object);
+        }
+
+        List<SegmentPath> rawPaths = pathConverter.convert(outerPath);
+        Query query = new Query(Criteria.where(Consts.APP_ID).is(AppIdContext.get()));
+        createAtDoc(query, rawPaths, object);
     }
 
 
     /**
-     * @description: 确认最终文档，在数组指定位置添加对象
+     * @description: find最终要create的文档，在数组指定位置添加对象，
      * @return:
      */
-    private void insertIntoArr(Query query, List<SegmentPath> paths, Map<String, Object> object) {
+    private void createAtDoc(Query query, List<SegmentPath> paths, Map<String, Object> object) {
         Update update = new Update();
         SegmentPath lastPath = paths.get(paths.size() - 1);
 
@@ -181,21 +215,13 @@ public class MdbAppUpdateRepository {
             if (lastPath.getType().equals(SegmentPath.SegmentPathType.field)) {
                 // 最后一个path是field，特殊处理，默认append到数组最后一位
                 finalSetKey += lastPath.getPath();
-                // 如果插入的是view或者logic, 同步更新
-                if (object.get(Consts.CONCEPT).equals(Consts.CONCEPT_VIEW)) {
-                    object.put(Consts.VIEWS, storeUtil.saveView(object));
-                }
-                if (object.get(Consts.CONCEPT).equals(Consts.CONCEPT_LOGIC)) {
-                    object.put(Consts.LOGICS, storeUtil.saveLogic(object));
-                }
-                update.push(finalSetKey).atPosition(-1).value(object);
+                update.push(finalSetKey, object);
             } else {
                 // 最后一个path是数组和索引，不用解析到setKey
                 finalSetKey += lastPath.getPath(); // 根据lastPath确定要create的数组
                 int idx = ((IdxPath) lastPath).getIdx(); // // 根据lastPath确定要create的数组位置
                 update.push(finalSetKey).atPosition(idx).value(object);
             }
-
         }
         UpdateResult app = mongoTemplate.updateFirst(query, update, Consts.COLLECTION_NAME);
         printUpdateResult(app);
@@ -432,7 +458,7 @@ public class MdbAppUpdateRepository {
 
         // 在删除app中对应的结构
         Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
-        List<SegmentPath> paths = pathConverter.convert(rawPath);
+        List<SegmentPath> paths = pathConverter.convert(outerPath);
         deleteByLastPathType(query, paths);
     }
 

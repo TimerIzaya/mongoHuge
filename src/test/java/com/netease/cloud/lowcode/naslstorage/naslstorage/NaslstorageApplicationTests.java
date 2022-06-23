@@ -2,6 +2,8 @@ package com.netease.cloud.lowcode.naslstorage.naslstorage;
 
 import com.mongodb.client.ClientSession;
 import com.netease.cloud.lowcode.naslstorage.NaslstorageApplication;
+import com.netease.cloud.lowcode.naslstorage.common.Consts;
+import com.netease.cloud.lowcode.naslstorage.interceptor.AppIdContext;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,6 +12,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOptions;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
@@ -41,7 +44,9 @@ class SpringBootApplicationTests {
 
     @Test
     public void testDelete() {
-        assert false;
+        Query query = new Query(Criteria.where(Consts.APP).is(AppIdContext.get()));
+        Map one = mongoTemplate.findOne(query, Map.class, Consts.COLLECTION_NAME);
+
     }
 
 }

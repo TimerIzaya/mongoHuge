@@ -14,8 +14,8 @@ import javax.annotation.Resource;
 import java.util.*;
 
 /**
- *  1. 处理应用文档关联的 view 和 logic 文档
- *  2. 解析List<SegmentPath> paths获得setKey
+ * 1. 处理应用文档关联的 view 和 logic 文档
+ * 2. 解析List<SegmentPath> paths获得setKey
  */
 @Repository
 public class MdbReferenceDocumentUpdateRepository {
@@ -31,12 +31,12 @@ public class MdbReferenceDocumentUpdateRepository {
                 childIds.add(saveView(child));
             }
         }
-        v.put(Consts.CHILDREN, childIds);
+//        v.put(Consts.CHILDREN, childIds);
         ObjectId objectId = insertDocument(v);
 
         Map<String, Object> retId = new HashMap();
         retId.put(Consts.REFERENCE_OBJECT_ID, objectId);
-        retId.put("name", v.get("name"));
+        retId.put(Consts.NAME, v.get(Consts.NAME));
         retId.put(Consts.CHILDREN, v.get(Consts.CHILDREN));
         return retId;
     }
@@ -53,7 +53,7 @@ public class MdbReferenceDocumentUpdateRepository {
         ObjectId objectId = insertDocument(logic);
         Map newLogic = new HashMap();
         newLogic.put(Consts.REFERENCE_OBJECT_ID, objectId);
-        newLogic.put("name", logic.get("name"));
+        newLogic.put(Consts.NAME, logic.get(Consts.NAME));
         return newLogic;
     }
 

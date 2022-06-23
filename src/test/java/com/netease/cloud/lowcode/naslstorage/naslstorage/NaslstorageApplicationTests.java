@@ -39,7 +39,7 @@ class SpringBootApplicationTests {
     }
 
     @Test
-    public void testTxn(){
+    public void testDelete(){
 
     }
 

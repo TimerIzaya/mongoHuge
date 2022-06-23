@@ -1,6 +1,7 @@
 package com.netease.cloud.lowcode.naslstorage.backend;
 
 import com.netease.cloud.lowcode.naslstorage.backend.path.SegmentPath;
+import org.springframework.boot.SpringApplication;
 
 import java.util.List;
 
@@ -26,4 +27,5 @@ public interface PathConverter<T> {
      * @return
      */
     String reverseConvert(T t);
+
 }

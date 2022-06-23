@@ -5,7 +5,7 @@ import com.netease.cloud.lowcode.naslstorage.common.ApiBaseResult;
 import com.netease.cloud.lowcode.naslstorage.common.ApiErrorCode;
 import com.netease.cloud.lowcode.naslstorage.dto.ActionDTO;
 import com.netease.cloud.lowcode.naslstorage.dto.QueryDTO;
-import org.springframework.beans.BeansException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +16,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/storage")
 public class StorageController {
@@ -29,7 +30,7 @@ public class StorageController {
             backendStore.batchAction(actionDTOS);
             return ApiBaseResult.successRet();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("批量操作文档失败");
             return ApiBaseResult.errorOf(ApiErrorCode.INTERNAL_SERVER_ERROR.getStatusCode(), ApiErrorCode.INTERNAL_SERVER_ERROR.getZnMessage());
         }
     }

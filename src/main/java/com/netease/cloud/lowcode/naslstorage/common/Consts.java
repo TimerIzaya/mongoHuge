@@ -10,21 +10,31 @@ import java.util.List;
  */
 
 public class Consts {
-    static public String APP = "app";
-    static public String COLLECTION_NAME = APP;
-    static public String APP_ID = "id";
-    static public String OBJECT_ID = "_id";
-    static public String NEED_SPLIT_DOC_VIEWS = "views";
-    static public String NEED_SPLIT_DOC_CHILDREN = "children";
-    static public String NEED_SPLIT_DOC_LOGICS = "logics";
-    static public String REFERENCE_OBJECT_ID = "refId";
+    static public final String APP = "app";
+    static public final String COLLECTION_NAME = APP;
+    static public final String APP_ID = "id";
+    static public final String OBJECT_ID = "_id";
+    static public final String NEED_SPLIT_DOC_VIEWS = "views";
+    static public final String NEED_SPLIT_DOC_CHILDREN = "children";
+    static public final String NEED_SPLIT_DOC_LOGICS = "logics";
+    static public final String REFERENCE_OBJECT_ID = "refId";
 
-    static public String VIEWS = "views";
-    static public String CHILDREN = "children";
-    static public String LOGICS = "logics";
+    static public final String VIEWS = "views";
+    static public final String CHILDREN = "children";
+    static public final String LOGICS = "logics";
+    static public final String NAME = "name";
+    static public final String CONCEPT = "concept";
+    static public final String CONCEPT_VIEW = "View";
+    static public final String CONCEPT_LOGIC = "Logic";
 
-    static public String TIMESTAMP = "timestamp";
+    static public final String TIMESTAMP = "timestamp";
 
+     static public final String PATH_SPLITTER = "\\.";
+     static public final String PARAM_START_TAG = "[";
+     static public final String PARAM_END_TAG = "]";
+     static public final String PARAM_SPLITTER = "=";
+     static public final String ARR_SLICE_SPLITTER = ":";
+     static public final String DOT = ".";
 
     /**
      * 应用node下第一层需要拆分出去的字段

@@ -2,6 +2,7 @@ package com.netease.cloud.lowcode.naslstorage.backend.mongo;
 
 import com.netease.cloud.lowcode.naslstorage.backend.path.*;
 import com.netease.cloud.lowcode.naslstorage.backend.PathConverter;
+import com.netease.cloud.lowcode.naslstorage.common.Consts;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -13,12 +14,6 @@ import java.util.List;
  */
 @Service("mdbPathConverter")
 public class MdbPathConverter implements PathConverter<List<SegmentPath>> {
-    private static final String PATH_SPLITTER = "\\.";
-    private static final String PARAM_START_TAG = "[";
-    private static final String PARAM_END_TAG = "]";
-    private static final String PARAM_SPLITTER = "=";
-    private static final String ARR_SLICE_SPLITTER = ":";
-
 
     @Override
     public String reverseConvert(List<SegmentPath> segmentPaths) {
@@ -26,23 +21,23 @@ public class MdbPathConverter implements PathConverter<List<SegmentPath>> {
             return null;
         }
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < segmentPaths.size(); i++){
+        for (int i = 0; i < segmentPaths.size(); i++) {
             SegmentPath v = segmentPaths.get(i);
             builder.append(v.getPath());
             if (SegmentPath.SegmentPathType.kv == v.getType()) {
                 KvPath tmp = (KvPath) v;
-                builder.append(PARAM_START_TAG);
+                builder.append(Consts.PARAM_START_TAG);
                 builder.append(tmp.getKey());
-                builder.append(PARAM_SPLITTER);
+                builder.append(Consts.PARAM_SPLITTER);
                 builder.append(tmp.getValue());
-                builder.append(PARAM_END_TAG);
+                builder.append(Consts.PARAM_END_TAG);
             } else if (SegmentPath.SegmentPathType.idx == v.getType()) {
                 IdxPath tmp = (IdxPath) v;
-                builder.append(PARAM_START_TAG);
+                builder.append(Consts.PARAM_START_TAG);
                 builder.append(tmp.getIdx());
-                builder.append(PARAM_END_TAG);
+                builder.append(Consts.PARAM_END_TAG);
             }
-            if (i != segmentPaths.size() -1) {
+            if (i != segmentPaths.size() - 1) {
                 builder.append(".");
             }
         }
@@ -52,11 +47,12 @@ public class MdbPathConverter implements PathConverter<List<SegmentPath>> {
     @Override
     public List<SegmentPath> convert(String jsonPath) {
         List<SegmentPath> ret = new ArrayList<>();
-        String[] splitPaths = jsonPath.split(PATH_SPLITTER);
+        String[] splitPaths = jsonPath.split(Consts.PATH_SPLITTER);
         for (String splitPath : splitPaths) {
-            int i = splitPath.indexOf(PARAM_START_TAG), j = splitPath.indexOf(PARAM_END_TAG), e = splitPath.indexOf(PARAM_SPLITTER), r = splitPath.indexOf(ARR_SLICE_SPLITTER);
-            // FieldPath
+            int i = splitPath.indexOf(Consts.PARAM_START_TAG), j = splitPath.indexOf(Consts.PARAM_END_TAG);
+            int e = splitPath.indexOf(Consts.PARAM_SPLITTER), r = splitPath.indexOf(Consts.ARR_SLICE_SPLITTER);
             if (i == -1) {
+                // FieldPath
                 ret.add(new FieldPath(splitPath));
                 continue;
             }
@@ -80,10 +76,9 @@ public class MdbPathConverter implements PathConverter<List<SegmentPath>> {
         return ret;
     }
 
-
     public static void main(String[] args) {
         MdbPathConverter converter = new MdbPathConverter();
-        String test = "apps.views[name=123].elements[0].name";
+        String test = "app.views[name=123].elements[0].attr[-1:3].name";
         System.out.println(converter.convert(test));
     }
 }

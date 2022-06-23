@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -39,8 +40,8 @@ class SpringBootApplicationTests {
     }
 
     @Test
-    public void testDelete(){
-
+    public void testDelete() {
+        assert false;
     }
 
 }

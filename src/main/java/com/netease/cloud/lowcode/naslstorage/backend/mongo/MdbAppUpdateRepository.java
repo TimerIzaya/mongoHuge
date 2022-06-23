@@ -1,8 +1,10 @@
 package com.netease.cloud.lowcode.naslstorage.backend.mongo;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import com.netease.cloud.lowcode.naslstorage.backend.PathConverter;
+import com.netease.cloud.lowcode.naslstorage.backend.path.FieldPath;
 import com.netease.cloud.lowcode.naslstorage.backend.path.IdxPath;
 import com.netease.cloud.lowcode.naslstorage.backend.path.KvPath;
 import com.netease.cloud.lowcode.naslstorage.backend.path.SegmentPath;
@@ -47,10 +49,17 @@ public class MdbAppUpdateRepository {
     private MdbSplitQueryRepository queryUtil;
 
     public void initApp(Map<String, Object> object) {
-        List<Map> saveViews = storeUtil.saveViews((List<Map>) object.get(Consts.VIEWS));
-        List<Map> saveLogics = storeUtil.saveLogics((List<Map>) object.get(Consts.LOGICS));
-        object.put(Consts.VIEWS, saveViews);
-        object.put(Consts.LOGICS, saveLogics);
+        // views要先判断是否是数组, 防止json不符合规范
+        Object views = object.get(Consts.VIEWS);
+        if (views instanceof ArrayList) {
+            List<Map> saveViews = storeUtil.saveViews((List<Map>) views);
+            object.put(Consts.VIEWS, saveViews);
+        }
+        Object logics = object.get(Consts.LOGICS);
+        if (logics instanceof ArrayList) {
+            List<Map> saveLogics = storeUtil.saveLogics((List<Map>) logics);
+            object.put(Consts.LOGICS, saveLogics);
+        }
         // 前端要求增加时间戳
         object.put(Consts.TIMESTAMP, System.currentTimeMillis());
         storeUtil.insertDocument(object);
@@ -77,14 +86,9 @@ public class MdbAppUpdateRepository {
 
     public void deleteApp(String appId) {
         // 获得当前app的views和logics并删除
-        String appViewsPath = Consts.APP + "." + Consts.VIEWS;
-        String appLogicsPath = Consts.APP + "." + Consts.LOGICS;
-//        List<Map> curViews = (List<Map>) queryUtil.get(null, appViewsPath, new ArrayList<>());
-        Object curViews =  queryUtil.get(null, appViewsPath, new ArrayList<>());
-        List<Map> curLogics = (List<Map>) queryUtil.get(null, appLogicsPath, new ArrayList<>());
-//        storeUtil.deleteViews(curViews);
-//        storeUtil.deleteLogics(curLogics);
-
+        storeUtil.deleteViews(getViews());
+        storeUtil.deleteLogics(getLogics());
+        // 删除app整体
         mongoTemplate.remove(new Query(Criteria.where(Consts.APP_ID).is(appId)), Consts.COLLECTION_NAME);
     }
 
@@ -121,20 +125,20 @@ public class MdbAppUpdateRepository {
 
 
     /**
-     * 不存在外部路径，不需要修改app结构
-     * 直接对app文档进行create
+     * 不存在外部路径，需要修改app结构
      * 路径用例："path": "app.processes[2].properties[6]",
+     * 路径用例："path": "app.views", 需要同步增加views
      */
     private void createWhenOuterEmpty(String appId, String innerPath, Map<String, Object> object) {
         Query query = new Query();
         query.addCriteria(Criteria.where(Consts.APP_ID).is(appId));
         List<SegmentPath> paths = pathConverter.convert(innerPath);
-        createAtTargetIndex(query, paths, object);
+        insertIntoArr(query, paths, object);
     }
 
 
     /**
-     * 存在外部路径，存在内部路径，不需要修改app结构
+     * 存在外部路径，存在内部路径，需要修改app结构
      * 对所有目标文档进行create
      * 路径用例："path": "app.views[2].children[3].children[4].elements[5].properties[6]"
      */
@@ -145,7 +149,7 @@ public class MdbAppUpdateRepository {
             query.addCriteria(Criteria.where(Consts.OBJECT_ID).is(targetDocId));
         }
         List<SegmentPath> paths = pathConverter.convert(innerPath);
-        createAtTargetIndex(query, paths, object);
+        insertIntoArr(query, paths, object);
     }
 
 
@@ -159,7 +163,7 @@ public class MdbAppUpdateRepository {
         // 更新app结构
         Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
         List<SegmentPath> paths = pathConverter.convert(outerPath);
-        createAtTargetIndex(query, paths, map);
+        insertIntoArr(query, paths, map);
     }
 
 
@@ -167,16 +171,31 @@ public class MdbAppUpdateRepository {
      * @description: 确认最终文档，在数组指定位置添加对象
      * @return:
      */
-    private void createAtTargetIndex(Query query, List<SegmentPath> paths, Map<String, Object> object) {
+    private void insertIntoArr(Query query, List<SegmentPath> paths, Map<String, Object> object) {
         Update update = new Update();
-        // 最后一个path是数组和索引，不用解析到setKey
+        SegmentPath lastPath = paths.get(paths.size() - 1);
+
         List<String> setKeys = storeUtil.getSetKeys(paths, paths.size() - 1, update);
         for (String setKey : setKeys) {
-            String finalSetKey = setKey.isEmpty() ? "" : setKey + ".";
-            IdxPath lastIdxPath = (IdxPath) paths.get(paths.size() - 1);
-            finalSetKey += lastIdxPath.getPath(); // 根据lastPath确定要create的数组
-            int idx = lastIdxPath.getIdx(); // // 根据lastPath确定要create的数组位置
-            update.push(finalSetKey).atPosition(idx).value(object);
+            String finalSetKey = setKey.isEmpty() ? "" : setKey + Consts.DOT;
+            if (lastPath.getType().equals(SegmentPath.SegmentPathType.field)) {
+                // 最后一个path是field，特殊处理，默认append到数组最后一位
+                finalSetKey += lastPath.getPath();
+                // 如果插入的是view或者logic, 同步更新
+                if (object.get(Consts.CONCEPT).equals(Consts.CONCEPT_VIEW)) {
+                    object.put(Consts.VIEWS, storeUtil.saveView(object));
+                }
+                if (object.get(Consts.CONCEPT).equals(Consts.CONCEPT_LOGIC)) {
+                    object.put(Consts.LOGICS, storeUtil.saveLogic(object));
+                }
+                update.push(finalSetKey).atPosition(-1).value(object);
+            } else {
+                // 最后一个path是数组和索引，不用解析到setKey
+                finalSetKey += lastPath.getPath(); // 根据lastPath确定要create的数组
+                int idx = ((IdxPath) lastPath).getIdx(); // // 根据lastPath确定要create的数组位置
+                update.push(finalSetKey).atPosition(idx).value(object);
+            }
+
         }
         UpdateResult app = mongoTemplate.updateFirst(query, update, Consts.COLLECTION_NAME);
         printUpdateResult(app);
@@ -194,19 +213,24 @@ public class MdbAppUpdateRepository {
         for (String key : object.keySet()) {
             if (Consts.VIEWS.equals(key)) {
                 // 删除旧views数组
-                storeUtil.deleteViews(getViews(appId));
+                storeUtil.deleteViews(getViews());
                 // 保存新views数组
-                List<Map> refIds = storeUtil.saveViews((List<Map>) object.get(key));
-                object.put(key, refIds);
+                Object views = object.get(key);
+                if (views instanceof ArrayList) {
+                    List<Map> refIds = storeUtil.saveViews((List<Map>) views);
+                    object.put(key, refIds);
+                }
             } else if (Consts.LOGICS.equals(key)) {
                 // 删除旧logics数组
-                storeUtil.deleteLogics(getLogics(appId));
+                storeUtil.deleteLogics(getLogics());
                 // 保存新logics数组
-                List<Map> refIds = storeUtil.saveLogics((List<Map>) object.get(key));
-                object.put(key, refIds);
+                Object logics = object.get(key);
+                if (logics instanceof ArrayList) {
+                    List<Map> refIds = storeUtil.saveLogics((List<Map>) logics);
+                    object.put(key, refIds);
+                }
             }
         }
-        int x = 1 / 0;
         updateWhenSetKeyDone(query, paths, object);
     }
 
@@ -237,18 +261,22 @@ public class MdbAppUpdateRepository {
         Map<String, Object> commonField = new HashMap<>();
         boolean nameExist = false;
         for (String key : object.keySet()) {
-            if ("name".equals(key)) {
+            if (Consts.NAME.equals(key)) {
                 // 修改name字段 最后执行
                 nameExist = true;
             } else if (Consts.CHILDREN.equals(key)) {
                 // 先删除children子文档
-                String rawPath = Consts.APP + "." + outerPath;
+                String rawPath = Consts.APP + Consts.DOT + outerPath;
                 Map<String, Object> view = (Map<String, Object>) queryUtil.get(null, rawPath, new ArrayList<>());
                 storeUtil.deleteViews((List<Map>) view.get(Consts.CHILDREN));
 
                 // 再根据object生成children
-                List<Map> children = (List<Map>) object.get(key);
-                List<Map> refIds = storeUtil.saveViews(children);
+                Object children = object.get(key);
+                List<Map> refIds = null;
+                if (children instanceof ArrayList) {
+                    List<Map> saveViews = (List<Map>) object.get(key);
+                    refIds = storeUtil.saveViews(saveViews);
+                }
 
                 // 同步更新当前view子文档的结构
                 List<ObjectId> finalDocIds = getFinalDocs(outerPath);
@@ -276,7 +304,7 @@ public class MdbAppUpdateRepository {
                 queryForSubDoc.addCriteria(Criteria.where(Consts.OBJECT_ID).is(targetDocId));
             }
             Map<String, Object> nameMap = new HashMap<>();
-            nameMap.put("name", object.get("name"));
+            nameMap.put(Consts.NAME, object.get(Consts.NAME));
             updateWhenSetKeyDone(queryForSubDoc, new ArrayList<>(), nameMap);
             // 最后同步更新app中的name
             Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
@@ -305,7 +333,7 @@ public class MdbAppUpdateRepository {
         for (String key : object.keySet()) {
             // 给setKey加上要修改的字段
             for (String setKey : setKeys) {
-                String finalSetKey = setKey.isEmpty() ? key : setKey + "." + key;
+                String finalSetKey = setKey.isEmpty() ? key : setKey + Consts.DOT + key;
                 update.set(finalSetKey, object.get(key));
             }
         }
@@ -313,34 +341,30 @@ public class MdbAppUpdateRepository {
         printUpdateResult(app);
     }
 
-    private List<Map> getViews(String appId) {
-        Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where(Consts.APP_ID).is(appId)),
-                Aggregation.unwind(Consts.VIEWS),
-                Aggregation.replaceRoot(Consts.VIEWS)
-        );
-        AggregationResults<Map> app = mongoTemplate.aggregate(aggregation, "app", Map.class);
-        List<Map> ret = new ArrayList<>();
-        Iterator<Map> it = app.iterator();
-        while (it.hasNext()) {
-            ret.add(it.next());
+    /**
+     * @description: 获得当前app的views字段，如果为空则返回空链表
+     * @return:
+     */
+    private List<Map> getViews() {
+        String appViewsPath = Consts.APP + Consts.DOT + Consts.VIEWS;
+        Object views = queryUtil.get(null, appViewsPath, new ArrayList<>());
+        if (views instanceof ArrayList) {
+            return (List<Map>) views;
         }
-        return ret;
+        return new ArrayList<>();
     }
 
-    private List<Map> getLogics(String appId) {
-        Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where(Consts.APP_ID).is(appId)),
-                Aggregation.unwind(Consts.LOGICS),
-                Aggregation.replaceRoot(Consts.LOGICS)
-        );
-        AggregationResults<Map> app = mongoTemplate.aggregate(aggregation, "app", Map.class);
-        List<Map> ret = new ArrayList<>();
-        Iterator<Map> it = app.iterator();
-        while (it.hasNext()) {
-            ret.add(it.next());
+    /**
+     * @description: 获得当前app的logics字段，如果为空则返回空链表
+     * @return:
+     */
+    private List<Map> getLogics() {
+        String appLogicsPath = Consts.APP + Consts.DOT + Consts.LOGICS;
+        Object logics = queryUtil.get(null, appLogicsPath, new ArrayList<>());
+        if (logics instanceof ArrayList) {
+            return (List<Map>) logics;
         }
-        return ret;
+        return new ArrayList<>();
     }
 
 
@@ -351,9 +375,9 @@ public class MdbAppUpdateRepository {
      */
     private void deleteWhenOuterEmpty(String appId, String innerPath) {
         if (Consts.VIEWS.equals(innerPath)) {
-            storeUtil.deleteViews(getViews(appId));
+            storeUtil.deleteViews(getViews());
         } else if (Consts.LOGICS.equals(innerPath)) {
-            storeUtil.deleteLogics(getLogics(appId));
+            storeUtil.deleteLogics(getLogics());
         }
         Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
         List<SegmentPath> paths = pathConverter.convert(innerPath);
@@ -370,12 +394,12 @@ public class MdbAppUpdateRepository {
         // 注意：logics或其他元素也可能有children字段
         if (outerPath.contains(Consts.VIEWS) && Consts.CHILDREN.equals(innerPath)) {
             // 查询子文档children并删除
-            String queryPath = Consts.APP + "." + outerPath;
+            String queryPath = Consts.APP + Consts.DOT + outerPath;
             Map<String, Object> view = (Map<String, Object>) queryUtil.get(null, queryPath, new ArrayList<>());
             storeUtil.deleteViews((List<Map>) view.get(Consts.CHILDREN));
             // 同步修改app结构
             Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
-            String rawPath = outerPath + "." + innerPath;
+            String rawPath = outerPath + Consts.DOT + innerPath;
             List<SegmentPath> paths = pathConverter.convert(rawPath);
             deleteByLastPathType(query, paths);
         }
@@ -397,7 +421,7 @@ public class MdbAppUpdateRepository {
      */
     private void deleteWhenInnerEmpty(String appId, String outerPath) {
         // 先删除选中的view或者logic
-        String rawPath = Consts.APP + "." + outerPath;
+        String rawPath = Consts.APP + Consts.DOT + outerPath;
         if (outerPath.contains(Consts.VIEWS)) {
             Object o = queryUtil.get(null, rawPath, new ArrayList<>());
             storeUtil.deleteView((Map) o);
@@ -454,7 +478,7 @@ public class MdbAppUpdateRepository {
         KvPath lastKvPath = (KvPath) paths.get(paths.size() - 1);
         for (int i = 0; i < setKeys.size(); i++) {
             String s = setKeys.get(i);
-            s = s.isEmpty() ? "" : s + ".";
+            s = s.isEmpty() ? "" : s + Consts.DOT;
             s += lastKvPath.getPath();
             setKeys.set(i, s);
         }
@@ -493,7 +517,7 @@ public class MdbAppUpdateRepository {
         }
 
         for (String deleteSetKey : deleteSetKeys) {
-            deleteSetKey += deleteSetKey.isEmpty() ? "" : ".";
+            deleteSetKey += deleteSetKey.isEmpty() ? "" : Consts.DOT;
             deleteSetKey += arrName;//获得最后一个path的arrName
             update.pull(deleteSetKey, new BasicDBObject("deleted", "true"));
         }
@@ -506,7 +530,7 @@ public class MdbAppUpdateRepository {
      * @return:
      */
     private List<ObjectId> getFinalDocs(String outerPath) {
-        outerPath = Consts.APP + "." + outerPath;
+        outerPath = Consts.APP + Consts.DOT + outerPath;
         List<SegmentPath> convert = pathConverter.convert(outerPath);
         LocationDocument location = queryUtil.locationDoc(convert);
         return location.getObjectIds();
@@ -515,5 +539,6 @@ public class MdbAppUpdateRepository {
     private void printUpdateResult(UpdateResult app) {
         log.info("match:" + app.getMatchedCount() + " modified:" + app.getModifiedCount());
     }
+
 
 }

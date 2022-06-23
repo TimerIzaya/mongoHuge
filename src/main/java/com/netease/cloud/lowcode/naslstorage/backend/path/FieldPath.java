@@ -23,8 +23,8 @@ public class FieldPath implements SegmentPath<String> {
     @Override
     public Map<String, String> get() {
         Map<String, String> map = new HashMap<>();
-        map.put("key", value);
-        return null;
+        map.put("field", value);
+        return map;
     }
 
     public FieldPath(String value) {

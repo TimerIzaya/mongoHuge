@@ -9,5 +9,5 @@ import java.util.List;
 public interface BackendStore {
     List<Object> batchQuery(List<QueryDTO> queryDTOS);
 
-    void batchAction(List<ActionDTO> actionDTOS);
+    void batchAction(List<ActionDTO> actionDTOS) throws Exception;
 }

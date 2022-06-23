@@ -58,8 +58,8 @@ public class MdbStore implements BackendStore {
      * 3. java-driver的mongo事务是提供retry的，但是spring集成的事务没有用，所以要自己配置retry
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    @Retryable(value = UncategorizedMongoDbException.class, exceptionExpression = "#{message.contains('WriteConflict error')}", maxAttempts = 128, backoff = @Backoff(delay = 50))
+    //@Transactional(rollbackFor = Exception.class)
+    //@Retryable(value = UncategorizedMongoDbException.class, exceptionExpression = "#{message.contains('WriteConflict error')}", maxAttempts = 128, backoff = @Backoff(delay = 50))
     public void batchAction(List<ActionDTO> actionDTOS) throws Exception {
         for (ActionDTO actionDTO : actionDTOS) {
             solveOpt(actionDTO);
@@ -85,9 +85,9 @@ public class MdbStore implements BackendStore {
             }
         }
 
-        if (!isObjectLegal(object)) {
+        /*if (!isObjectLegal(object)) {
             throw new Exception("Object is illegal");
-        }
+        }*/
 
         String[] splits = PathUtil.splitPathForUpdate(rawPath);
         if (ActionEnum.CREATE.getAction().equals(action)) {

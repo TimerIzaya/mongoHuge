@@ -166,7 +166,8 @@ public class MdbSplitQueryRepository {
             innerPath = null;
         }
         Object appRet = mdbQueryRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), pathConverter.reverseConvert(queryPath), new ArrayList<>());
-        if (appRet instanceof Collection) {
+        if (ObjectUtils.isEmpty(appRet)) {
+        }else if (appRet instanceof Collection) {
             ((Collection<?>) appRet).stream().forEach(v -> objectIds.add((ObjectId) ((Map) v).get(Consts.REFERENCE_OBJECT_ID)));
         } else {
             objectIds.add((ObjectId) ((Map) appRet).get(Consts.REFERENCE_OBJECT_ID));

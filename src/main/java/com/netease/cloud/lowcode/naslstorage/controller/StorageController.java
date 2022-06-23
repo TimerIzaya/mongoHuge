@@ -30,7 +30,7 @@ public class StorageController {
             backendStore.batchAction(actionDTOS);
             return ApiBaseResult.successRet();
         } catch (Exception e) {
-            log.error("批量操作文档失败");
+            log.error("批量操作文档失败", e);
             return ApiBaseResult.errorOf(ApiErrorCode.INTERNAL_SERVER_ERROR.getStatusCode(), ApiErrorCode.INTERNAL_SERVER_ERROR.getZnMessage());
         }
     }
@@ -44,6 +44,7 @@ public class StorageController {
             List<Object> result  = backendStore.batchQuery(queryDTOS);
             return ApiBaseResult.successRet(result);
         } catch (Exception e) {
+            log.error("查询失败，", e);
             return ApiBaseResult.errorOf(ApiErrorCode.INTERNAL_SERVER_ERROR);
         }
     }

@@ -1,5 +1,6 @@
 package com.netease.cloud.lowcode.naslstorage.backend.mongo;
 
+import com.netease.cloud.lowcode.naslstorage.backend.path.PathUtil;
 import com.netease.cloud.lowcode.naslstorage.backend.path.SegmentPath;
 import com.netease.cloud.lowcode.naslstorage.common.Consts;
 import com.netease.cloud.lowcode.naslstorage.interceptor.AppIdContext;
@@ -38,7 +39,7 @@ public class MdbSplitQueryRepository {
         List<SegmentPath> pathSchemas = pathConverter.convert(jsonPath);
         // 路径上views.(children)+ 或logics在应用文档查询，其他的子path 需要定位到相应的关联文档操作
         // views.(children)+ 这段路径搜索只支持name或数组下标
-        LocationDocument locationDocument = locationDoc(pathSchemas);
+        LocationDocument locationDocument = locationDoc(pathSchemas, excludes);
         return get(locationDocument, excludes);
     }
 
@@ -48,7 +49,7 @@ public class MdbSplitQueryRepository {
             RepositoryOperationContext context = RepositoryOperationContext.builder().objectIds(locationDocument.getObjectIds()).appId(AppIdContext.get()).build();
             ret = mdbQueryRepository.get(context, locationDocument.getInnerJsonPath(), excludes);
         } else {
-            ret = mdbQueryRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), locationDocument.getOutJsonPath(), excludes);
+            ret = locationDocument.getOutQueryRet();
         }
         return fillSubDoc(ret, excludes);
     }
@@ -138,34 +139,24 @@ public class MdbSplitQueryRepository {
         return ret;
     }
 
-    public LocationDocument locationDoc(List<SegmentPath> pathSchemas) {
-        int lastIndex = -1;
-        boolean needSplit = false;
-        boolean notSplitProperty = true;
-        boolean splitButInAppDoc = true;
-        for (int i = 0; i < pathSchemas.size(); i++) {
-            lastIndex = i;
-            // views 下的logics 并不拆分文档
-            notSplitProperty = i == 1 ? !Consts.NEED_SPLIT_FIRST_PROPERTY_IN_APP_DOC.contains(pathSchemas.get(i).getPath()) : notSplitProperty;
-            splitButInAppDoc = i >= 2 ? pathSchemas.get(i).getPath().equalsIgnoreCase(Consts.NEED_SPLIT_DOC_CHILDREN) : splitButInAppDoc;
-            if (!notSplitProperty && !splitButInAppDoc) {
-                needSplit = true;
-                break;
-            }
-        }
+    public LocationDocument locationDoc(List<SegmentPath> pathSchemas, List<String> excludes) {
+        int lastIndex = PathUtil.splitPathForQuery(pathSchemas);
         LocationDocument locationDocument = new LocationDocument();
         List<ObjectId> objectIds = new ArrayList<>();
         List<SegmentPath> queryPath;
         List<SegmentPath> innerPath;
-        if (needSplit) {
+        Object appRet;
+        if (lastIndex < pathSchemas.size()) {
             queryPath = pathSchemas.subList(0, lastIndex);
             innerPath = pathSchemas.subList(lastIndex, pathSchemas.size());
+            appRet = mdbQueryRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), pathConverter.reverseConvert(queryPath), new ArrayList<>());
+
         } else {
             // 不需要拆分
             queryPath = pathSchemas;
             innerPath = null;
+            appRet = mdbQueryRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), pathConverter.reverseConvert(queryPath), excludes);
         }
-        Object appRet = mdbQueryRepository.get(RepositoryOperationContext.builder().appId(AppIdContext.get()).build(), pathConverter.reverseConvert(queryPath), new ArrayList<>());
         if (ObjectUtils.isEmpty(appRet)) {
         }else if (appRet instanceof Collection) {
             ((Collection<?>) appRet).stream().forEach(v -> objectIds.add((ObjectId) ((Map) v).get(Consts.REFERENCE_OBJECT_ID)));
@@ -176,6 +167,7 @@ public class MdbSplitQueryRepository {
         locationDocument.setOutJsonPath(pathConverter.reverseConvert(queryPath));
         locationDocument.setInnerJsonPath(pathConverter.reverseConvert(innerPath));
         locationDocument.setObjectIds(objectIdRet);
+        locationDocument.setOutQueryRet(appRet);
         return locationDocument;
     }
 

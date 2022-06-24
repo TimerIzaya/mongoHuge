@@ -14,6 +14,7 @@ public class LocationDocument {
     private List<ObjectId> objectIds;
     private String innerJsonPath;
     private String outJsonPath;
+    private Object outQueryRet;
 
     public List<ObjectId> getObjectIds() {
         return objectIds;
@@ -37,5 +38,13 @@ public class LocationDocument {
 
     public void setOutJsonPath(String outJsonPath) {
         this.outJsonPath = outJsonPath;
+    }
+
+    public Object getOutQueryRet() {
+        return outQueryRet;
+    }
+
+    public void setOutQueryRet(Object outQueryRet) {
+        this.outQueryRet = outQueryRet;
     }
 }

@@ -6,6 +6,7 @@ import com.netease.cloud.lowcode.naslstorage.backend.path.SegmentPath;
 import com.netease.cloud.lowcode.naslstorage.common.Consts;
 import com.netease.cloud.lowcode.naslstorage.backend.PathConverter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -20,6 +21,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 @Service("mdbAppRepositoryImpl")
+@Slf4j
 public class MdbQueryRepository {
 
     @Resource
@@ -31,11 +33,22 @@ public class MdbQueryRepository {
     public Object get(RepositoryOperationContext context, String jsonPath, List<String> excludes) {
         List<SegmentPath> paths = pathConverter.convert(jsonPath);
         List<AggregationOperation> aggregationOperations = new ArrayList<>();
+        if (CollectionUtils.isEmpty(paths)) {
+            // 不应该没有搜索路径
+            log.info("搜索路径为null, appId: {}", context.getAppId());
+            return null;
+        }
         /**
          * 文档过滤
          */
         if (!CollectionUtils.isEmpty(context.getObjectIds())) {
+            // 关联文档
             aggregationOperations.add(Aggregation.match(Criteria.where(Consts.OBJECT_ID).in(context.getObjectIds())));
+        } else {
+            if (paths.get(0).getPath().equalsIgnoreCase(Consts.APP)) {
+                // 应用过滤信息不在path 中，是通过header 传入的
+                aggregationOperations.add(Aggregation.match(Criteria.where(Consts.APP_ID).is(context.getAppId())));
+            }
         }
         String lastPathWithoutParam = null;
         for (int i = 0; i < paths.size(); i++) {
@@ -46,35 +59,22 @@ public class MdbQueryRepository {
                 aggregationOperations.add(Aggregation.unwind(tmp.getPath()));
                 aggregationOperations.add(Aggregation.replaceRoot(tmp.getPath()));
             } else if (path.getType() == SegmentPath.SegmentPathType.kv) {
-                // key 和value 都不为空
                 KvPath tmp = (KvPath) path;
+                UnwindOperation unwindOperation = Aggregation.unwind(tmp.getPath());
+                aggregationOperations.add(unwindOperation);
+                // mongo默认返回整个文档结构，我们需要返回查询的子node
+                aggregationOperations.add(Aggregation.replaceRoot(tmp.getPath()));
                 aggregationOperations.add(Aggregation.match(Criteria.where(tmp.getKey()).is(tmp.getValue())));
-            } else {
-                if (Consts.APP.equalsIgnoreCase(path.getPath())) {
-                    // 应用过滤信息不在path 中，是通过header 传入的
-                    aggregationOperations.add(Aggregation.match(Criteria.where(Consts.APP_ID).is(context.getAppId())));
-                }
-            }
-            if (i < paths.size() - 1) {
-                // 不是最后一个元素
-                SegmentPath nextPath = paths.get(i + 1);
-                // i+1 是最后一个元素并且没有搜索条件，则不进行replaceRoot
-                if ((i + 1 == paths.size() -1) && SegmentPath.SegmentPathType.field == nextPath.getType()) {
-                } else if (SegmentPath.SegmentPathType.kv == nextPath.getType()) {
-                    // 非最后一段没有搜索条件的；非下一段是数组下标搜索
-                    UnwindOperation unwindOperation = Aggregation.unwind(nextPath.getPath());
-                    aggregationOperations.add(unwindOperation);
-                    // mongo默认返回整个文档结构，我们需要返回查询的子node, 数组也不能作为newRoot
-                    aggregationOperations.add(Aggregation.replaceRoot(nextPath.getPath()));
-                }
-            } else {
-                // key、value 都为null，这种情况是路径上没有搜索条件, 通常是JsonObject 里选取字段。只有在最后一段path 中可能为数组，中间不带搜索条件的不能是数组。
-                // mongodb 限制：非数组不能replaceRoot
-                if (!Consts.APP.equalsIgnoreCase(path.getPath()) && SegmentPath.SegmentPathType.field == path.getType()) {
-                    lastPathWithoutParam = path.getPath();
-                }
             }
         }
+
+        // key、value 都为null，这种情况是路径上没有搜索条件, 通常是JsonObject 里选取字段。只有在最后一段path 中可能为数组，中间不带搜索条件的不能是数组。
+        // mongodb 限制：非数组不能replaceRoot，所以这个情况在上述流程无法处理，这里单独处理
+        SegmentPath lastPath = paths.get(paths.size()-1);
+        if (!Consts.APP.equalsIgnoreCase(lastPath.getPath()) && SegmentPath.SegmentPathType.field == lastPath.getType()) {
+            lastPathWithoutParam = lastPath.getPath();
+        }
+
         /**
          * 字段投影
          */

@@ -1,8 +1,10 @@
 package com.netease.cloud.lowcode.naslstorage.backend.path;
 
 import com.netease.cloud.lowcode.naslstorage.common.Consts;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class PathUtil {
 
@@ -44,6 +46,33 @@ public class PathUtil {
         ret[0] = outer.toString();
         ret[1] = inner.toString();
         return ret;
+    }
+
+    /**
+     * 为查询拆分path，依据应用文档和关联文档
+     * @param paths
+     * @return: outer & inner path split index
+     */
+    static public int splitPathForQuery(List<SegmentPath> paths) {
+        if (CollectionUtils.isEmpty(paths)) {
+            return 0;
+        }
+        if (paths.size() == 1 && paths.get(0).getPath().equals(Consts.APP)) {
+            return 1;
+        }
+
+        // 增删改模块去除首个app字符串，start从1开始
+        int start = 1, end = start;
+        if (paths.get(start).getPath().equalsIgnoreCase(Consts.VIEWS)) {
+            end = start + 1;
+            while (end < paths.size() && paths.get(end).getPath().equalsIgnoreCase(Consts.CHILDREN)) {
+                end++;
+            }
+        } else if (paths.get(start).getPath().equalsIgnoreCase(Consts.LOGICS)) {
+            end = 2;
+        }
+
+        return end;
     }
 
 

@@ -262,8 +262,7 @@ public class MdbAppUpdateRepository {
 
 
     /**
-     * 存在外部路径，存在内部路径
-     * 对所有目标文档进行update，无特殊情况
+     * 存在外部路径 + 存在内部路径 = 修改目标文档
      * 路径用例："path": "app.views[2].children[3].elements[5].properties[6]"
      */
     private void updateWhenInnerExist(String outerPath, String innerPath, Map<String, Object> object) {
@@ -278,9 +277,10 @@ public class MdbAppUpdateRepository {
 
 
     /**
-     * 存在外部路径，不存在内部路径
+     * 存在外部路径 + 不存在内部路径
      * 特殊情况：更新name、更新children
-     * 注意！！！更新name需要特别处理，放在最后更新，防止paths的lastPath是跟据name定位的
+     * 注意！！！更新name需要放在最后更新，防止paths的lastPath是跟据name定位的
+     * 路径用例："path": "app.views[2].children[3]" -> {name: xxx, children: {[],[]}, type: xxx}
      */
     private void updateWhenInnerEmpty(String appId, String outerPath, Map<String, Object> object) {
         // 保留非特殊字段，批量修改
@@ -291,10 +291,10 @@ public class MdbAppUpdateRepository {
                 // 修改name字段 最后执行
                 nameExist = true;
             } else if (Consts.CHILDREN.equals(key)) {
-                // 先删除children子文档
+                // 先删除children里所有view
                 String rawPath = Consts.APP + Consts.DOT + outerPath;
-                Map<String, Object> view = (Map<String, Object>) queryUtil.get(null, rawPath, new ArrayList<>());
-                storeUtil.deleteViews((List<Map>) view.get(Consts.CHILDREN));
+                Map<String, Object> finalDoc = (Map<String, Object>) queryUtil.get(null, rawPath, new ArrayList<>());
+                storeUtil.deleteViews((List<Map>) finalDoc.get(Consts.CHILDREN));
 
                 // 再根据object生成children
                 Object children = object.get(key);
@@ -304,15 +304,8 @@ public class MdbAppUpdateRepository {
                     refIds = storeUtil.saveViews(saveViews);
                 }
 
-                // 同步更新当前view子文档的结构
-                List<ObjectId> finalDocIds = getFinalDocs(outerPath);
-                Query queryForSubDoc = new Query();
-                for (ObjectId id : finalDocIds) {
-                    queryForSubDoc.addCriteria(Criteria.where(Consts.OBJECT_ID).is(id));
-                }
                 Map<String, Object> childrenMap = new HashMap<>();
                 childrenMap.put(Consts.CHILDREN, refIds);
-                updateWhenSetKeyDone(queryForSubDoc, new ArrayList<>(), childrenMap);
 
                 // 最后同步更新app结构
                 Query query = new Query(Criteria.where(Consts.APP_ID).is(appId));
@@ -340,12 +333,12 @@ public class MdbAppUpdateRepository {
 
         // 更新正常字段
         if (commonField.size() > 0) {
-            Query queryForSubDoc = new Query();
+            Query querySubDoc = new Query();
             List<ObjectId> finalDocIds = getFinalDocs(outerPath);
             for (ObjectId id : finalDocIds) {
-                queryForSubDoc.addCriteria(Criteria.where(Consts.OBJECT_ID).is(id));
+                querySubDoc.addCriteria(Criteria.where(Consts.OBJECT_ID).is(id));
             }
-            updateWhenSetKeyDone(queryForSubDoc, new ArrayList<>(), commonField);
+            updateWhenSetKeyDone(querySubDoc, new ArrayList<>(), commonField);
         }
     }
 
@@ -565,6 +558,4 @@ public class MdbAppUpdateRepository {
     private void printUpdateResult(UpdateResult app) {
         log.info("match:" + app.getMatchedCount() + " modified:" + app.getModifiedCount());
     }
-
-
 }

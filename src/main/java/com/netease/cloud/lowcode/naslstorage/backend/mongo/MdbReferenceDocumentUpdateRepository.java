@@ -31,13 +31,14 @@ public class MdbReferenceDocumentUpdateRepository {
                 childIds.add(saveView(child));
             }
         }
-//        v.put(Consts.CHILDREN, childIds);
+
+        v.remove(Consts.CHILDREN);
         ObjectId objectId = insertDocument(v);
 
         Map<String, Object> retId = new HashMap();
         retId.put(Consts.REFERENCE_OBJECT_ID, objectId);
         retId.put(Consts.NAME, v.get(Consts.NAME));
-        retId.put(Consts.CHILDREN, v.get(Consts.CHILDREN));
+        retId.put(Consts.CHILDREN, childIds);
         return retId;
     }
 
@@ -53,7 +54,7 @@ public class MdbReferenceDocumentUpdateRepository {
         ObjectId objectId = insertDocument(logic);
         Map newLogic = new HashMap();
         newLogic.put(Consts.REFERENCE_OBJECT_ID, objectId);
-        newLogic.put(Consts.NAME, logic.get(Consts.NAME));
+        newLogic.put("name", logic.get("name"));
         return newLogic;
     }
 

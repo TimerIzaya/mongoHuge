@@ -9,12 +9,9 @@ import com.netease.cloud.lowcode.naslstorage.backend.BackendStore;
 import com.netease.cloud.lowcode.naslstorage.enums.ActionEnum;
 import com.netease.cloud.lowcode.naslstorage.backend.path.PathUtil;
 import com.netease.cloud.lowcode.naslstorage.interceptor.AppIdContext;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -58,8 +55,8 @@ public class MdbStore implements BackendStore {
      * 3. java-driver的mongo事务是提供retry的，但是spring集成的事务没有用，所以要自己配置retry
      */
     @Override
-    //@Transactional(rollbackFor = Exception.class)
-    //@Retryable(value = UncategorizedMongoDbException.class, exceptionExpression = "#{message.contains('WriteConflict error')}", maxAttempts = 128, backoff = @Backoff(delay = 50))
+    @Transactional(rollbackFor = Exception.class)
+    @Retryable(value = UncategorizedMongoDbException.class, exceptionExpression = "#{message.contains('WriteConflict error')}", maxAttempts = 128, backoff = @Backoff(delay = 50))
     public void batchAction(List<ActionDTO> actionDTOS) throws Exception {
         for (ActionDTO actionDTO : actionDTOS) {
             solveOpt(actionDTO);

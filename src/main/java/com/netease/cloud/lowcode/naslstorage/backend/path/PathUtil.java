@@ -70,6 +70,8 @@ public class PathUtil {
             }
         } else if (paths.get(start).getPath().equalsIgnoreCase(Consts.LOGICS)) {
             end = 2;
+        } else {
+            end = paths.size();
         }
 
         return end;

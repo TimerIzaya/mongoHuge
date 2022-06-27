@@ -37,11 +37,12 @@ public class MdbStore implements BackendStore {
         if (CollectionUtils.isEmpty(queryDTOS)) {
             return new ArrayList<>();
         }
-        return queryDTOS.stream().map(this::get).collect(Collectors.toList());
+        return queryDTOS.stream().map(this::query).collect(Collectors.toList());
     }
 
 
-    private Object get(QueryDTO queryDTO) {
+    @Override
+    public Object query(QueryDTO queryDTO) {
         return appQueryRepository.get(null, queryDTO.getPath(), queryDTO.getExcludes());
     }
 

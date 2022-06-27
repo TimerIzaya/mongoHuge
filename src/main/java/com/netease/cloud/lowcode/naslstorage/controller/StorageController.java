@@ -7,10 +7,7 @@ import com.netease.cloud.lowcode.naslstorage.dto.ActionDTO;
 import com.netease.cloud.lowcode.naslstorage.dto.QueryDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -42,6 +39,20 @@ public class StorageController {
         }
         try {
             List<Object> result  = backendStore.batchQuery(queryDTOS);
+            return ApiBaseResult.successRet(result);
+        } catch (Exception e) {
+            log.error("查询失败，", e);
+            return ApiBaseResult.errorOf(ApiErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/query")
+    public ApiBaseResult query(@RequestParam("path") String path, @RequestParam(value = "excludes", required = false) List<String> excludes) {
+        try {
+            QueryDTO queryDTO = new QueryDTO();
+            queryDTO.setPath(path);
+            queryDTO.setExcludes(excludes);
+            Object result  = backendStore.query(queryDTO);
             return ApiBaseResult.successRet(result);
         } catch (Exception e) {
             log.error("查询失败，", e);

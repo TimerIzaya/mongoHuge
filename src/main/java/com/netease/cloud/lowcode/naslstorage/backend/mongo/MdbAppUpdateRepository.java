@@ -73,7 +73,7 @@ public class MdbAppUpdateRepository {
         } else if (!innerPath.isEmpty()) {
             createWhenInnerExist(outerPath, innerPath, object);
         } else {
-            createWhenInnerEmpty(appId, outerPath, object);
+            createWhenInnerEmpty(outerPath, object);
         }
     }
 
@@ -141,22 +141,24 @@ public class MdbAppUpdateRepository {
 
 
     /**
-     * 存在外部路径 + 存在内部路径 = 只需要修改子文档 || 只需要修改app + 保存子文档
-     * 对所有目标文档进行create
-     * 路径用例："path": "app.views[2].children[3].children[4].elements[5].properties[6]"
-     * 路径用例："path": "app.views[2].children[3].children[4].children"
+     * 存在外部路径 + 存在内部路径
+     * 路径用例："path": "app.logics[2].properties[6]"
+     * 路径用例："path": "app.views[2].children[3].children[4].children" （特殊情况）
+     * 路径用例："path": "app.views[2].logics"
+     * 路径用例："path": "app.views[2].elements"
      */
     private void createWhenInnerExist(String outerPath, String innerPath, Map<String, Object> object) {
         boolean isView = object.containsKey(Consts.CONCEPT) && object.get(Consts.CONCEPT).equals(Consts.CONCEPT_VIEW);
-        boolean isLogic = object.containsKey(Consts.CONCEPT) && object.get(Consts.CONCEPT).equals(Consts.CONCEPT_LOGIC);
-        if (isView) {
+
+        if (innerPath.equals(Consts.CHILDREN) && isView) {
+            // 特殊情况，object是view 并且 inner是children，需要同步更新
             object = storeUtil.saveView(object);
-        }
-        if (isLogic) {
-            object = storeUtil.saveLogic(object);
-        }
-        // object是普通对象, name需要定位到子文档，再修改
-        if (!isLogic && !isView) {
+            String rawPath = outerPath + Consts.DOT + innerPath;
+            List<SegmentPath> rawPaths = pathConverter.convert(rawPath);
+            Query query = new Query(Criteria.where(Consts.APP_ID).is(AppIdContext.get()));
+            createAtDoc(query, rawPaths, object);
+        } else {
+            // 一般情况
             List<ObjectId> targetDocIds = getFinalDocs(outerPath);
             Query querySubDoc = new Query();
             for (ObjectId targetDocId : targetDocIds) {
@@ -164,12 +166,6 @@ public class MdbAppUpdateRepository {
             }
             List<SegmentPath> innerPaths = pathConverter.convert(innerPath);
             createAtDoc(querySubDoc, innerPaths, object);
-        } else {
-            // object是view或者logic, 已保存, 直接修改app即可
-            String rawPath = outerPath + Consts.DOT + innerPath;
-            List<SegmentPath> rawPaths = pathConverter.convert(rawPath);
-            Query query = new Query(Criteria.where(Consts.APP_ID).is(AppIdContext.get()));
-            createAtDoc(query, rawPaths, object);
         }
     }
 
@@ -179,7 +175,7 @@ public class MdbAppUpdateRepository {
      * 路径用例: "path": "app.views[0].children[1].children[2].children[3]"
      * 只需要修改app结构
      */
-    private void createWhenInnerEmpty(String appId, String outerPath, Map<String, Object> object) {
+    private void createWhenInnerEmpty(String outerPath, Map<String, Object> object) {
         boolean isView = object.containsKey(Consts.CONCEPT) && object.get(Consts.CONCEPT).equals(Consts.CONCEPT_VIEW);
         boolean isLogic = object.containsKey(Consts.CONCEPT) && object.get(Consts.CONCEPT).equals(Consts.CONCEPT_LOGIC);
         if (isView) {

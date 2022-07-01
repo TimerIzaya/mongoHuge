@@ -132,6 +132,7 @@ public class MdbSplitQueryRepository {
                 field.exclude(exclude);
             }
         }
+        field.exclude(Consts.OBJECT_ID);
         Map ret = mongoTemplate.findOne(query, Map.class, Consts.COLLECTION_NAME);
         if (!CollectionUtils.isEmpty(children)) {
             ret.put(Consts.NEED_SPLIT_DOC_CHILDREN, cret);

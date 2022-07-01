@@ -55,7 +55,7 @@ public class MdbStore implements BackendStore {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @Retryable(value = UncategorizedMongoDbException.class, exceptionExpression = "#{message.contains('WriteConflict error')}", maxAttempts = 128, backoff = @Backoff(delay = 50))
+    @Retryable(value = UncategorizedMongoDbException.class, exceptionExpression = "#{message.contains('WriteConflict')}", maxAttempts = 128, backoff = @Backoff(delay = 50))
     public void batchAction(List<ActionDTO> actionDTOS) throws Exception {
         for (ActionDTO actionDTO : actionDTOS) {
             solveOpt(actionDTO);
@@ -79,11 +79,6 @@ public class MdbStore implements BackendStore {
                 mdbAppUpdateRepository.initApp(actionDTO.getObject());
                 return;
             }
-        }
-
-        // update和create需要校验object是否合法
-        if (!ActionEnum.DELETE.getAction().equals(action) && !isObjectLegal(object)) {
-            throw new Exception("Object is illegal");
         }
 
         String[] splits = PathUtil.splitPathForUpdate(rawPath);

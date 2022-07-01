@@ -78,13 +78,14 @@ public class MdbQueryRepository {
         /**
          * 字段投影
          */
+        ProjectionOperation projectionOperation = new ProjectionOperation();
         if (!StringUtils.hasLength(lastPathWithoutParam) && !CollectionUtils.isEmpty(excludes)) {
-            ProjectionOperation projectionOperation = new ProjectionOperation();
             for (String exclude : excludes) {
                 projectionOperation = projectionOperation.andExclude(exclude);
             }
-            aggregationOperations.add(projectionOperation);
         }
+        projectionOperation = projectionOperation.andExclude(Consts.OBJECT_ID);
+        aggregationOperations.add(projectionOperation);
 
         Aggregation aggregation = Aggregation.newAggregation(aggregationOperations).withOptions(AggregationOptions.builder().allowDiskUse(true).build());
 

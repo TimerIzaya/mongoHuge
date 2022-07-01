@@ -105,6 +105,9 @@ public class MdbReferenceDocumentUpdateRepository {
     }
 
     public ObjectId insertDocument(Map o) {
+        if (o.containsKey(Consts.OBJECT_ID)) {
+            o.remove(Consts.OBJECT_ID);
+        }
         Document d = new Document(o);
         mongoTemplate.getCollection(Consts.APP).insertOne(d);
         return d.getObjectId(Consts.OBJECT_ID);

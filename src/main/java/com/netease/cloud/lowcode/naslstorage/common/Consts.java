@@ -27,7 +27,11 @@ public class Consts {
     static public final String CONCEPT_VIEW = "View";
     static public final String CONCEPT_LOGIC = "Logic";
 
+    /**
+     * TIMESTAMP 和UPDATE_BY_APP 是多人协作需要的
+     */
     static public final String TIMESTAMP = "timestamp";
+    static public final String UPDATE_BY_APP = "updateByApp";
 
      static public final String PATH_SPLITTER = "\\.";
      static public final String PARAM_START_TAG = "[";

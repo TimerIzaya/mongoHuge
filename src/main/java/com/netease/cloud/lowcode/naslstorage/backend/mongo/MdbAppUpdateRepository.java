@@ -68,6 +68,7 @@ public class MdbAppUpdateRepository {
         String appId = AppIdContext.get();
         // 前端要求增加时间戳
         object.put(Consts.TIMESTAMP, System.currentTimeMillis());
+        object.put(Consts.UPDATE_BY_APP, appId);
         if (outerPath.isEmpty()) {
             createWhenOuterEmpty(appId, innerPath, object);
         } else if (!innerPath.isEmpty()) {
@@ -94,6 +95,7 @@ public class MdbAppUpdateRepository {
         String appId = AppIdContext.get();
         // 前端要求增加时间戳
         object.put(Consts.TIMESTAMP, System.currentTimeMillis());
+        object.put(Consts.UPDATE_BY_APP, appId);
         if (outerPath.isEmpty()) {
             updateWhenOuterEmpty(appId, innerPath, object);
         } else if (!innerPath.isEmpty()) {

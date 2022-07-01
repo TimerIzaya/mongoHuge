@@ -107,6 +107,7 @@ public class MdbSplitQueryRepository {
         }
         if (!CollectionUtils.isEmpty(objectIds)) {
             Query query = Query.query(Criteria.where(Consts.OBJECT_ID).in(objectIds));
+            query.fields().exclude(Consts.OBJECT_ID);
             List<Map> refRet = mongoTemplate.find(query, Map.class, Consts.COLLECTION_NAME);
             refRet.stream().forEach(v -> {
                 if (!CollectionUtils.isEmpty(childrenMap.get(v.get(Consts.OBJECT_ID)))) {

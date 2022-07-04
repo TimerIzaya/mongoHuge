@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -25,7 +24,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Service("mongoService")
 public class MdbStore implements BackendStore {
     @Resource
     private MdbNaslChangedRecordRepository naslChangedRecordRepository;

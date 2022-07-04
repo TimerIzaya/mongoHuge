@@ -40,7 +40,11 @@ public class MdbSplitQueryRepository {
         // 路径上views.(children)+ 或logics在应用文档查询，其他的子path 需要定位到相应的关联文档操作
         // views.(children)+ 这段路径搜索只支持name或数组下标
         LocationDocument locationDocument = locationDoc(pathSchemas, excludes);
-        return get(locationDocument, excludes);
+        Object ret = get(locationDocument, excludes);
+        if (ObjectUtils.isEmpty(ret)) {
+            return null;
+        }
+        return ret;
     }
 
     private Object get(LocationDocument locationDocument, List<String> excludes) {

@@ -4,7 +4,9 @@ import com.netease.cloud.lowcode.naslstorage.backend.BackendStore;
 import com.netease.cloud.lowcode.naslstorage.common.ApiBaseResult;
 import com.netease.cloud.lowcode.naslstorage.common.ApiErrorCode;
 import com.netease.cloud.lowcode.naslstorage.dto.ActionDTO;
+import com.netease.cloud.lowcode.naslstorage.dto.NaslChangedInfoDTO;
 import com.netease.cloud.lowcode.naslstorage.dto.QueryDTO;
+import com.netease.cloud.lowcode.naslstorage.interceptor.AppIdContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +56,18 @@ public class StorageController {
             Object result  = backendStore.query(queryDTO);
             return ApiBaseResult.successRet(result);
         } catch (Exception e) {
-            log.error("查询失败，", e);
+            log.error("查询失败，appId={}, path={}", AppIdContext.get(), path, e);
+            return ApiBaseResult.errorOf(ApiErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/appNaslChangedInfo")
+    public ApiBaseResult queryAppNaslChangedInfo() {
+        try {
+            NaslChangedInfoDTO result  = backendStore.queryAppNaslChangedInfo(AppIdContext.get());
+            return ApiBaseResult.successRet(result);
+        } catch (Exception e) {
+            log.error("查询NASL 变更信息失败，appId={}, error=", AppIdContext.get(), e);
             return ApiBaseResult.errorOf(ApiErrorCode.INTERNAL_SERVER_ERROR);
         }
     }

@@ -10,6 +10,7 @@ import java.util.List;
  */
 
 public class Consts {
+    static public final String HEADER_APPID = "appId";
     static public final String APP = "app";
     static public final String COLLECTION_NAME = APP;
     static public final String APP_ID = "id";
@@ -30,8 +31,8 @@ public class Consts {
     /**
      * TIMESTAMP 和UPDATE_BY_APP 是多人协作需要的
      */
-    static public final String TIMESTAMP = "timestamp";
-    static public final String UPDATE_BY_APP = "updateByApp";
+    static public final String TIMESTAMP = "changedTime";
+    static public final String UPDATE_BY_APP = "branchName";
 
      static public final String PATH_SPLITTER = "\\.";
      static public final String PARAM_START_TAG = "[";
@@ -39,10 +40,5 @@ public class Consts {
      static public final String PARAM_SPLITTER = "=";
      static public final String ARR_SLICE_SPLITTER = ":";
      static public final String DOT = ".";
-
-    /**
-     * 应用node下第一层需要拆分出去的字段
-     */
-    static public List<String> NEED_SPLIT_FIRST_PROPERTY_IN_APP_DOC = Arrays.asList(NEED_SPLIT_DOC_VIEWS, NEED_SPLIT_DOC_LOGICS);
 
 }

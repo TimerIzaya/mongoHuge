@@ -2,10 +2,12 @@ package com.netease.cloud.lowcode.naslstorage.backend.mongo;
 
 import com.netease.cloud.lowcode.naslstorage.common.Consts;
 import com.netease.cloud.lowcode.naslstorage.dto.ActionDTO;
+import com.netease.cloud.lowcode.naslstorage.dto.NaslChangedInfoDTO;
 import com.netease.cloud.lowcode.naslstorage.dto.QueryDTO;
 import com.netease.cloud.lowcode.naslstorage.backend.BackendStore;
 import com.netease.cloud.lowcode.naslstorage.enums.ActionEnum;
 import com.netease.cloud.lowcode.naslstorage.backend.path.PathUtil;
+import com.netease.cloud.lowcode.naslstorage.enums.ChangedNaslType;
 import com.netease.cloud.lowcode.naslstorage.interceptor.AppIdContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service("mongoService")
 public class MdbStore implements BackendStore {
+    @Resource
+    private MdbNaslChangedRecordRepository naslChangedRecordRepository;
 
     @Resource(name = "splitMdbAppRepositoryImpl")
     private MdbSplitQueryRepository appQueryRepository;
@@ -62,6 +66,16 @@ public class MdbStore implements BackendStore {
         }
     }
 
+    @Override
+    public void recordAppNaslChanged(String appId, ChangedNaslType naslType) {
+        naslChangedRecordRepository.recordAppNaslChanged(appId, naslType);
+    }
+
+    @Override
+    public NaslChangedInfoDTO queryAppNaslChangedInfo(String appId) {
+        return naslChangedRecordRepository.queryAppNaslChangedInfo(appId);
+    }
+
 
     private void solveOpt(ActionDTO actionDTO) throws Exception {
         String appId = AppIdContext.get(), action = actionDTO.getAction(), rawPath = actionDTO.getPath();
@@ -89,25 +103,5 @@ public class MdbStore implements BackendStore {
         } else if (ActionEnum.DELETE.getAction().equals(action)) {
             mdbAppUpdateRepository.delete(splits[0], splits[1]);
         }
-    }
-
-    /**
-     * @description: 检查传入的object是否合法
-     * 1. 一般字段的v不能为null
-     * 2. views和logics必须是数组
-     * @return:
-     */
-    private boolean isObjectLegal(Map<String, Object> o) {
-        for (String k : o.keySet()) {
-            if (Consts.VIEWS.equals(k) || Consts.LOGICS.equals(k)) {
-                if (!(o.get(k) instanceof ArrayList)) {
-                    return false;
-                }
-            }
-            if (o.get(k) == null) {
-                return false;
-            }
-        }
-        return true;
     }
 }

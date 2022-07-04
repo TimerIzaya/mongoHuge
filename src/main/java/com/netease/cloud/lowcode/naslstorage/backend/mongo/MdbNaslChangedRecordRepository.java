@@ -59,8 +59,8 @@ public class MdbNaslChangedRecordRepository {
     public NaslChangedInfoDTO queryAppNaslChangedInfo(String appId) {
         Map<String, Object> ret = (Map<String, Object>) mongoTemplate.findOne(Query.query(Criteria.where(Consts.APP_ID).is(appId)), Map.class, APP_NASL_EXT_INFO_COLLECTION);
         NaslChangedInfoDTO dto = new NaslChangedInfoDTO();
-        dto.setBackendChangedTime(ret.get(APP_BACKEND_CHANGED_TIME) == null ? null : (Long) ret.get(APP_BACKEND_CHANGED_TIME));
-        dto.setWebChangedTime(ret.get(APP_WEB_CHANGED_TIME) == null ? null : (Long) ret.get(APP_WEB_CHANGED_TIME));
+        dto.setBackendChangedTime( ret == null || ret.get(APP_BACKEND_CHANGED_TIME) == null ? null : (Long) ret.get(APP_BACKEND_CHANGED_TIME));
+        dto.setWebChangedTime(ret == null || ret.get(APP_WEB_CHANGED_TIME) == null ? null : (Long) ret.get(APP_WEB_CHANGED_TIME));
         return dto;
     }
 

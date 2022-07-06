@@ -16,10 +16,12 @@ public interface BackendStore {
 
     /**
      * 记录应用nasl 变动时间
+     *
      * @param appId
      * @param naslType
      */
     void recordAppNaslChanged(String appId, ChangedNaslType naslType);
 
     NaslChangedInfoDTO queryAppNaslChangedInfo(String appId);
+
 }

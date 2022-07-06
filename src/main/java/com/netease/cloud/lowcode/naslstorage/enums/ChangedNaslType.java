@@ -1,6 +1,12 @@
 package com.netease.cloud.lowcode.naslstorage.enums;
 
 /**
+ * @description:
+ * @author: sunhaoran
+ * @time: 2022/7/6 10:28
+ */
+
+/**
  * @author pingerchen
  * 前后端哪一部分代码有更新的枚举类
  */

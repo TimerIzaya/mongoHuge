@@ -1,4 +1,4 @@
-package com.netease.cloud.lowcode.naslstorage.backend.path;
+package com.netease.cloud.lowcode.mongoHuge.pathEntity;
 
 
 import lombok.Data;
@@ -10,7 +10,7 @@ import java.util.Map;
  * partPath中的idx类型，比如 modules[1]
  */
 @Data
-public class IdxPath implements SegmentPath<Integer> {
+public class IdxPath implements SegPath<Integer> {
 
     String path;
 
@@ -23,8 +23,8 @@ public class IdxPath implements SegmentPath<Integer> {
     }
 
     @Override
-    public SegmentPathType getType() {
-        return SegmentPathType.idx;
+    public Type getType() {
+        return Type.idx;
     }
 
     @Override

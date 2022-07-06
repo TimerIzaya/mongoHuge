@@ -6,11 +6,11 @@ import com.netease.cloud.lowcode.naslstorage.dto.NaslChangedInfoDTO;
 import com.netease.cloud.lowcode.naslstorage.dto.QueryDTO;
 import com.netease.cloud.lowcode.naslstorage.backend.BackendStore;
 import com.netease.cloud.lowcode.naslstorage.enums.ActionEnum;
-import com.netease.cloud.lowcode.naslstorage.backend.path.PathUtil;
 import com.netease.cloud.lowcode.naslstorage.enums.ChangedNaslType;
 import com.netease.cloud.lowcode.naslstorage.interceptor.AppIdContext;
+import com.netease.cloud.lowcode.mongoHuge.MongoHuge;
+import com.netease.cloud.lowcode.mongoHuge.pathEntity.QueryPath;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -19,20 +19,18 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class MdbStore implements BackendStore {
+
     @Resource
     private MdbNaslChangedRecordRepository naslChangedRecordRepository;
 
-    @Resource(name = "splitMdbAppRepositoryImpl")
-    private MdbSplitQueryRepository appQueryRepository;
-
-    @Autowired
-    private MdbAppUpdateRepository mdbAppUpdateRepository;
+    MongoHuge mongoHuge = new MongoHuge();
 
     @Override
     public List<Object> batchQuery(List<QueryDTO> queryDTOS) {
@@ -45,7 +43,29 @@ public class MdbStore implements BackendStore {
 
     @Override
     public Object query(QueryDTO queryDTO) {
-        return appQueryRepository.get(null, queryDTO.getPath(), queryDTO.getExcludes());
+        List<String> excludes = queryDTO.getExcludes();
+        String rawPath = queryDTO.getPath();
+        // 去除前端输入的app.
+        rawPath = rawPath.replace(Consts.APP + Consts.DOT, "").replace(Consts.APP, "");
+        QueryPath queryPath = new QueryPath(rawPath);
+        Object result = mongoHuge.jsonGet(AppIdContext.get(), queryPath);
+
+        // 第一层exclude
+        if (result instanceof Collection) {
+            ((Collection<?>) result).forEach(v -> {
+                if (v instanceof Map) {
+                    for (String exclude : excludes) {
+                        ((Map<?, ?>) v).remove(exclude);
+                    }
+                }
+            });
+        } else if (result instanceof Map) {
+            for (String exclude : excludes) {
+                ((Map<?, ?>) result).remove(exclude);
+            }
+        }
+
+        return result;
     }
 
 
@@ -57,49 +77,53 @@ public class MdbStore implements BackendStore {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @Retryable(value = UncategorizedMongoDbException.class, exceptionExpression = "#{message.contains('WriteConflict')}", maxAttemptsExpression = "${mongodb.transaction.maxAttempts:10}", backoff = @Backoff(delayExpression = "${mongodb.transaction.backoff.delay:100}"))
+    @Retryable(value = UncategorizedMongoDbException.class, exceptionExpression = "#{message.contains('WriteConflict')}", maxAttemptsExpression = "${mongodb.transaction.maxAttempts:128}", backoff = @Backoff(delayExpression = "${mongodb.transaction.backoff.delay:500}"))
     public void batchAction(List<ActionDTO> actionDTOS) throws Exception {
         for (ActionDTO actionDTO : actionDTOS) {
+            long time = System.currentTimeMillis();
             solveOpt(actionDTO);
+            System.out.println(actionDTO.getAction() + " time : " + (System.currentTimeMillis() - time));
         }
     }
 
+    private void solveOpt(ActionDTO actionDTO) {
+        String appId = AppIdContext.get(), action = actionDTO.getAction(), rawPath = actionDTO.getPath();
+        Map<String, Object> obj = actionDTO.getObject();
+
+        // 去除前端输入的app.
+        rawPath = rawPath.replace(Consts.APP + Consts.DOT, "").replace(Consts.APP, "");
+        QueryPath queryPath = new QueryPath(rawPath);
+
+        if (ActionEnum.CREATE.getAction().equals(action)) {
+            if (queryPath.isEmpty()) {
+                // 初始化 前端要求增加时间戳
+                obj.put(Consts.TIMESTAMP, System.currentTimeMillis());
+                mongoHuge.jsonInit(appId, obj);
+                return;
+            }
+            // create 前端要求增加时间戳
+            obj.put(Consts.TIMESTAMP, System.currentTimeMillis());
+            obj.put(Consts.UPDATE_BY_APP, appId);
+            mongoHuge.jsonArrInsert(appId, queryPath, obj);
+        } else if (ActionEnum.UPDATE.getAction().equals(action)) {
+            // update 前端要求增加时间戳
+            obj.put(Consts.TIMESTAMP, System.currentTimeMillis());
+            obj.put(Consts.UPDATE_BY_APP, appId);
+            mongoHuge.jsonSet(appId, queryPath, obj);
+        } else if (ActionEnum.DELETE.getAction().equals(action)) {
+            mongoHuge.jsonDel(appId, queryPath);
+        }
+    }
+
+
     @Override
     public void recordAppNaslChanged(String appId, ChangedNaslType naslType) {
-        naslChangedRecordRepository.recordAppNaslChanged(appId, naslType);
+
     }
 
     @Override
     public NaslChangedInfoDTO queryAppNaslChangedInfo(String appId) {
-        return naslChangedRecordRepository.queryAppNaslChangedInfo(appId);
+        return null;
     }
 
-
-    private void solveOpt(ActionDTO actionDTO) throws Exception {
-        String appId = AppIdContext.get(), action = actionDTO.getAction(), rawPath = actionDTO.getPath();
-        Map<String, Object> object = actionDTO.getObject();
-        log.info("QueryPath: " + rawPath);
-
-        // path为app则可能为初始化app或者删除app
-        if (Consts.APP.equals(rawPath)) {
-            if (ActionEnum.DELETE.getAction().equals(action)) {
-                mdbAppUpdateRepository.deleteApp(appId);
-                return;
-            }
-            if (ActionEnum.CREATE.getAction().equals(action)) {
-                mdbAppUpdateRepository.deleteApp(appId);
-                mdbAppUpdateRepository.initApp(actionDTO.getObject());
-                return;
-            }
-        }
-
-        String[] splits = PathUtil.splitPathForUpdate(rawPath);
-        if (ActionEnum.CREATE.getAction().equals(action)) {
-            mdbAppUpdateRepository.create(splits[0], splits[1], object);
-        } else if (ActionEnum.UPDATE.getAction().equals(action)) {
-            mdbAppUpdateRepository.update(splits[0], splits[1], object);
-        } else if (ActionEnum.DELETE.getAction().equals(action)) {
-            mdbAppUpdateRepository.delete(splits[0], splits[1]);
-        }
-    }
 }

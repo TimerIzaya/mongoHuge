@@ -1,0 +1,7 @@
+splitschema:
+  - querypath: views
+    recurfield: children
+    jointfield: [ name ]
+  - querypath: logics
+    jointfield: [ name ]
+

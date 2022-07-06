@@ -18,9 +18,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new AppIdInterceptor()).addPathPatterns("/**")
-                .excludePathPatterns( "/health");
+                .excludePathPatterns("/health");
 
         registry.addInterceptor(naslChangeRecordInterceptor()).addPathPatterns("/**")
-                .excludePathPatterns( "/health");
+                .excludePathPatterns("/health");
     }
 }

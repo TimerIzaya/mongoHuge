@@ -1,25 +1,30 @@
-package com.netease.cloud.lowcode.naslstorage.backend.path;
+package com.netease.cloud.lowcode.mongoHuge.pathEntity;
 
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * partPath中的kv类型，比如 modules[name="xxx"]
  */
 @Data
-public class KvPath implements SegmentPath<String> {
+public class KvPath implements SegPath<String> {
 
     // modules[name="xxx"]中的modules
     String path;
 
-    //modules[name="xxx"]中的name
+    // modules[name="xxx"]中的name
     String key;
 
-    //modules[name="xxx"]中的xxx
+    // modules[name="xxx"]中的xxx
     String value;
+
+    // KvPath和IdxPath属于一对多
+    List<Integer> idxs = new ArrayList<>();
 
     public KvPath(String path, String key, String value) {
         this.path = path;
@@ -28,8 +33,8 @@ public class KvPath implements SegmentPath<String> {
     }
 
     @Override
-    public SegmentPathType getType() {
-        return SegmentPathType.kv;
+    public Type getType() {
+        return Type.kv;
     }
 
     @Override

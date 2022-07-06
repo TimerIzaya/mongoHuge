@@ -39,7 +39,7 @@ public class StorageController {
             return ApiBaseResult.successRet();
         }
         try {
-            List<Object> result  = backendStore.batchQuery(queryDTOS);
+            List<Object> result = backendStore.batchQuery(queryDTOS);
             return ApiBaseResult.successRet(result);
         } catch (Exception e) {
             log.error("查询失败，", e);
@@ -53,7 +53,7 @@ public class StorageController {
             QueryDTO queryDTO = new QueryDTO();
             queryDTO.setPath(path);
             queryDTO.setExcludes(excludes);
-            Object result  = backendStore.query(queryDTO);
+            Object result = backendStore.query(queryDTO);
             return ApiBaseResult.successRet(result);
         } catch (Exception e) {
             log.error("查询失败，appId={}, path={}", AppIdContext.get(), path, e);
@@ -61,10 +61,10 @@ public class StorageController {
         }
     }
 
-    @GetMapping("/appNaslChangedInfo")
+        @GetMapping("/appNaslChangedInfo")
     public ApiBaseResult queryAppNaslChangedInfo() {
         try {
-            NaslChangedInfoDTO result  = backendStore.queryAppNaslChangedInfo(AppIdContext.get());
+            NaslChangedInfoDTO result = backendStore.queryAppNaslChangedInfo(AppIdContext.get());
             return ApiBaseResult.successRet(result);
         } catch (Exception e) {
             log.error("查询NASL 变更信息失败，appId={}, error=", AppIdContext.get(), e);
@@ -72,3 +72,4 @@ public class StorageController {
         }
     }
 }
+

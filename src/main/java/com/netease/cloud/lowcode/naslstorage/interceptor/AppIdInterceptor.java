@@ -22,6 +22,7 @@ public class AppIdInterceptor implements HandlerInterceptor {
             throws Exception {
 
         String appId = request.getHeader(Consts.HEADER_APPID);
+
         if (!StringUtils.hasLength(appId)) {
             log.error("appId in header is required");
             throw new Exception("appId in header is required");
@@ -32,7 +33,7 @@ public class AppIdInterceptor implements HandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-            ModelAndView modelAndView) throws Exception {
+                           ModelAndView modelAndView) throws Exception {
         HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
     }
 

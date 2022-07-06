@@ -1,4 +1,4 @@
-package com.netease.cloud.lowcode.naslstorage.backend.path;
+package com.netease.cloud.lowcode.mongoHuge.pathEntity;
 
 import lombok.Data;
 
@@ -6,13 +6,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Data
-public class FieldPath implements SegmentPath<String> {
+public class FieldPath implements SegPath<String> {
 
     String value;
 
     @Override
-    public SegmentPathType getType() {
-        return SegmentPathType.field;
+    public Type getType() {
+        return Type.field;
     }
 
     @Override

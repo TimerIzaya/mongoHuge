@@ -14,5 +14,5 @@ ENV PATH=/usr/local/openjdk-8/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/
 
 # 运行代码
 COPY ./target/nasl-storage-0.0.1-SNAPSHOT.jar nasl-storage.jar
-CMD ["/bin/sh", "-c", "exec java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Djava.security.egd=file:/dev/./urandom -Djava.library.path=/ -Dfastjson.parser.autoTypeSupport=false -jar nasl-storage.jar"]
+CMD ["/bin/sh", "-c", "exec java -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Djava.security.egd=file:/dev/./urandom -Djava.library.path=/ -Dfastjson.parser.autoTypeSupport=false -jar nasl-storage.jar"]
 

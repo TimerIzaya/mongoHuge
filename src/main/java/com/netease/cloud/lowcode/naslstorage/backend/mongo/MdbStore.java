@@ -57,7 +57,7 @@ public class MdbStore implements BackendStore {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @Retryable(value = UncategorizedMongoDbException.class, exceptionExpression = "#{message.contains('WriteConflict')}", maxAttemptsExpression = "${mongodb.transaction.maxAttempts:128}", backoff = @Backoff(delayExpression = "${mongodb.transaction.backoff.delay:500}"))
+    @Retryable(value = UncategorizedMongoDbException.class, exceptionExpression = "#{message.contains('WriteConflict')}", maxAttemptsExpression = "${mongodb.transaction.maxAttempts:10}", backoff = @Backoff(delayExpression = "${mongodb.transaction.backoff.delay:100}"))
     public void batchAction(List<ActionDTO> actionDTOS) throws Exception {
         for (ActionDTO actionDTO : actionDTOS) {
             solveOpt(actionDTO);
